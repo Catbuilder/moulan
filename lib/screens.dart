@@ -75,6 +75,7 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
 
   Widget _shoppingCartBadge() {
     return Badge(
+      badgeColor: globals.badgeColor,
       position: BadgePosition.topEnd(top: -7, end: -12),
       animationDuration: Duration(milliseconds: 300),
       animationType: BadgeAnimationType.slide,
@@ -91,6 +92,7 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
 
   Widget _catalogBadge() {
     return Badge(
+      badgeColor: globals.badgeColor,
       position: BadgePosition.topEnd(top: -7, end: -12),
       animationDuration: Duration(milliseconds: 300),
       animationType: BadgeAnimationType.slide,
@@ -1191,7 +1193,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
       _position = values.indexWhere((e) => e.artnumint == syncnum) ;
       if(_position == -1) _position = 0;
     }
-    print('Position: $_position');
+    //print('Position: $_position');
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -1624,6 +1626,7 @@ class _TreeScreen extends State<TreeScreen> {
                                     },
                                   )
                                 : Badge(
+                                    badgeColor: globals.badgeColor,
                                     position:
                                         BadgePosition.topEnd(top: -2, end: -3),
                                     animationDuration:

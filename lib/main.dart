@@ -69,7 +69,6 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
-  final codeController = TextEditingController();
   final pswController = ObscuringTextEditingController();
   final msgController = TextEditingController();
   var _themeProvider;
@@ -95,7 +94,6 @@ class _MainMenuState extends State<MainMenu> {
     storage.writeBasket(basketChecked);
     // Clean up the controller when the widget is disposed.
     emailController.dispose();
-    codeController.dispose();
     pswController.dispose();
 
     super.dispose();
@@ -107,12 +105,6 @@ class _MainMenuState extends State<MainMenu> {
 
     final SharedPreferences prefs = await _prefs;
     emailController.text = prefs.get('user');
-    codeController.text = prefs.get('shop');
-    setState(() {
-      approLogo = prefs.get(codeController.text + '-logo');
-      if (approLogo == null) approLogo = '';
-      //print(codeController.text + '-shop' + ':' + approLogo);
-    });
     pswController.text = '';
     var _shortestSide = MediaQuery.of(context).size.shortestSide;
 
@@ -132,7 +124,7 @@ class _MainMenuState extends State<MainMenu> {
     final sstorage = new FlutterSecureStorage();
     //print(await sstorage.readAll());
 
-    _token = await sstorage.read(key: codeController.text);
+    _token = await sstorage.read(key: approShop);
     if (_token != null) {
       //Vérifier faceid ou finger print
       var localAuth = LocalAuthentication();
@@ -161,13 +153,12 @@ class _MainMenuState extends State<MainMenu> {
   void login(bool bfaceid) async {
     msgController.text = '';
     if (bfaceid) {
-      if (codeController.text == '' || emailController.text == '') {
+      if ( emailController.text == '') {
         msgController.text = AppLocalizations.of(context).fieldsmandatory;
         return;
       }
     } else {
-      if (codeController.text == '' ||
-          emailController.text == '' ||
+      if (emailController.text == '' ||
           pswController.text == '') {
         msgController.text = AppLocalizations.of(context).fieldsmandatory;
         return;
@@ -181,12 +172,11 @@ class _MainMenuState extends State<MainMenu> {
             child: Center(child: CircularProgressIndicator())));
 
     final result = await getCredential(emailController.text, pswController.text,
-        codeController.text, context, _token);
+        approShop, context, _token);
     Navigator.pop(context);
     if (result.ok) {
       final SharedPreferences prefs = await _prefs;
       prefs.setString('user', emailController.text);
-      prefs.setString('shop', codeController.text);
       var route = MaterialPageRoute(
         settings: RouteSettings(name: '/'),
         builder: (BuildContext context) =>
@@ -205,7 +195,7 @@ class _MainMenuState extends State<MainMenu> {
     return Scaffold(
       appBar: AppBar(
           title:
-              Text("Catbuilder Appro 7/24", style: TextStyle(fontSize: 18.0)),
+              Text("Moulan app", style: TextStyle(fontSize: 18.0)),
           centerTitle: true),
       body: SingleChildScrollView(
         child: Form(
@@ -265,31 +255,6 @@ class _MainMenuState extends State<MainMenu> {
                   placeholder: AppLocalizations.of(context).password,
                 ),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: CupertinoTextField(
-                  prefix: Icon(
-                    CupertinoIcons.house,
-                    color: CupertinoColors.secondaryLabel,
-                    size: 24,
-                  ),
-                  controller: codeController,
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  clearButtonMode: OverlayVisibilityMode.editing,
-                  keyboardType: TextInputType.text,
-                  autocorrect: false,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        width: 0,
-                        color: CupertinoColors.inactiveGray,
-                      ),
-                    ),
-                  ),
-                  placeholder: AppLocalizations.of(context).shopcode,
-                ),
-              ),
               SizedBox(height: 20.0),
               Center(
                 child: ElevatedButton.icon(
@@ -343,11 +308,11 @@ class _MainMenuState extends State<MainMenu> {
                       },
                       placeholder: AssetImage('images/pixel.gif'),
                       image: approLogo == ''
-                          ? AssetImage('images/cat192.png')
+                          ? AssetImage('images/moulan-logo.png')
                           : NetworkImage(approLogo),
                       fit: BoxFit.contain,
-                      height: 200.0,
-                      width: 200.0,
+                      height: 250.0,
+                      width: 250.0,
                     ),
                   ),
                 ),

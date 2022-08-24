@@ -17,7 +17,7 @@ import 'package:native_pdf_view/native_pdf_view.dart';
 import 'restart.dart';
 
 var approCredential = '';
-var approShop = '';
+var approShop = 'moulan';
 var approUser = '';
 var approLanguage = 'fr';
 var approStartCatalog = 'cat01';
