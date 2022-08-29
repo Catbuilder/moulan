@@ -2087,7 +2087,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                       }
                                     },
                                         style: ElevatedButton.styleFrom(primary: myTheme.toggleButtonsTheme.color, visualDensity: VisualDensity.compact ,textStyle: TextStyle(fontSize:  approDataTextSize * 1.0)),
-                                        child: Text(basketChecked[index].artnumint,
+                                        child: Text(basketScanned[index].artnumint,
                                         ),),
                                   /*Text(basketScanned[index].artnumint,
                                       style: TextStyle(
