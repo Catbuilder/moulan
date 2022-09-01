@@ -673,6 +673,10 @@ Future<List<CatNode>> getSearch() async {
   return resultNode;
 }
 
+Future<List<InfoNews>> getNews() async {
+  return infoNews;
+}
+
 Future<List<CatLevel>> searchItem(val, repcod, context) async {
   if (val == '') {
     return [];

@@ -473,15 +473,7 @@ class NewsScreen extends StatefulWidget {
 class _NewsScreen extends State<NewsScreen> {
   _NewsScreen();
 
-  num _position = 1;
-  num _count = 0;
   var storage = new InfoNewsStorage();
-
-  doneLoading() {
-    setState(() {
-      _position = 0;
-    });
-  }
 
   _refreshInfoNews() {
     globals.infoCounter.value =
@@ -490,11 +482,168 @@ class _NewsScreen extends State<NewsScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
 
   Widget build(BuildContext context) {
+    var futureBuilder = FutureBuilder(
+      future: getNews(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          default:
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return ListView.builder(
+                  itemCount: infoNews.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+
+                        ValueListenableBuilder(
+                            valueListenable: globals.infoCounter,
+                            builder: (BuildContext context, int value, Widget child) {
+                              return ListTile(
+                                title: Column(children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.only(top: 2.0, bottom: 0.0),
+                                    child: Image.network(
+                                      'https://' +
+                                          approShop +
+                                          '.catbuilder.info/catalogs/' +
+                                          getText(infoNews[index].infimg),
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (BuildContext context, Widget child,
+                                          ImageChunkEvent loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return Center(child: child);
+                                        } else {
+                                          return Container();
+                                        }
+                                      },
+
+                                    ),
+                                  ),
+                                  Container(
+                                      height: infoNews[index].infdet == '' ? 0.0 : 5.0),
+                                  //Text(getText(infoNews[index].infdet)),
+                                  ListTile(
+                                    //minLeadingWidth: 20.0,
+                                    dense: true,
+                                    horizontalTitleGap: 0.0,
+                                    contentPadding: EdgeInsets.all(0.0),
+                                    leading: infoNews[index].infsta == 1
+                                        ? IconButton(
+                                      padding: EdgeInsets.only(
+                                          top: 0.0, left: 0.0, right: 4.0),
+                                      icon: Icon(Icons.check_box_outlined),
+                                      onPressed: () {
+                                        infoNews[index].infsta = 0;
+                                        _refreshInfoNews();
+                                      },
+                                    )
+                                        : IconButton(
+                                      padding: EdgeInsets.only(
+                                          top: 0.0, left: 0.0, right: 4.0),
+                                      icon: Icon(
+                                          Icons.check_box_outline_blank_outlined),
+                                      onPressed: () {
+                                        infoNews[index].infsta = 1;
+                                        _refreshInfoNews();
+                                      },
+                                    ),
+                                    title: Text(getText(infoNews[index].inftit)),
+
+                                    onTap: () async {
+                                      switch (infoNews[index].infact) {
+                                        case 'search':
+                                          infoNews[index].infsta = 1;
+                                          _refreshInfoNews();
+                                          List<CatLevel> _result = [];
+                                          _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
+                                          var route = MaterialPageRoute(
+                                            builder: (BuildContext context) => ChapterScreen(
+                                                _result,
+                                                infoNews[index].inftit,
+                                                null),
+                                          );
+                                          Navigator.of(context).push(route);
+                                          break;
+
+                                        case 'goto':
+                                          infoNews[index].infsta = 1;
+                                          globals.infoCounter.value = infoNews
+                                              .where((r) => r.infsta == 0)
+                                              .toList()
+                                              .length;
+                                          var route = MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                FavoriteDetailScreen(
+                                                  basdes: getText(infoNews[index].inftit),
+                                                  basval: getItemToken(
+                                                      getItemToken(
+                                                          infoNews[index].inflin, '/', 2),
+                                                      '.',
+                                                      1),
+                                                  basurl: infoNews[index].inflin,
+                                                  synctoc: true,
+                                                ),
+                                          );
+                                          Navigator.of(context).push(route);
+                                          break;
+                                      }
+                                    },
+                                    trailing: infoNews[index].infact == ''
+                                        ? Container()
+                                        : Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                                  )
+                                ]),
+                                onTap: () async {
+                                  switch (infoNews[index].infact) {
+                                    case 'search':
+                                      infoNews[index].infsta = 1;
+                                      _refreshInfoNews();
+                                      List<CatLevel> _result = [];
+                                      _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
+                                      var route = MaterialPageRoute(
+                                        builder: (BuildContext context) => ChapterScreen(
+                                            _result,
+                                            infoNews[index].inftit,
+                                            null),
+                                      );
+                                      Navigator.of(context).push(route);
+                                      break;
+                                    case 'goto':
+                                      infoNews[index].infsta = 1;
+                                      _refreshInfoNews();
+                                      var route = MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            FavoriteDetailScreen(
+                                              basdes: getText(infoNews[index].inftit),
+                                              basval: getItemToken(
+                                                  getItemToken(
+                                                      infoNews[index].inflin, '/', 2),
+                                                  '.',
+                                                  1),
+                                              basurl: infoNews[index].inflin,
+                                              synctoc: true,
+                                            ),
+                                      );
+                                      Navigator.of(context).push(route);
+                                      break;
+                                  }
+                                },
+                              );
+                            }),
+                        //Divider(height: 1.0,),
+                      ],
+                    );
+                  });
+            }
+        }
+      },
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -517,190 +666,8 @@ class _NewsScreen extends State<NewsScreen> {
             ),
           ])),
       body: Container(
-        padding: EdgeInsets.only(top: 0.0, bottom: 60),
-        child: IndexedStack(index: _position, children: <Widget>[
-          ListView.builder(
-              itemCount: infoNews.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Column(children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(top: 2.0, bottom: 0.0),
-                          child: Image.network(
-                            'https://' +
-                                approShop +
-                                '.catbuilder.info/catalogs/' +
-                                getText(infoNews[index].infimg),
-                            fit: BoxFit.cover,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent loadingProgress) {
-                              if (loadingProgress == null) {
-                                _count++;
-                                if (_count == infoNews.length) {
-                                  Future.delayed(Duration(seconds: 1),
-                                          () => doneLoading());
-                                }
-                                return Center(child: child);
-                              } else {
-                                return Container();
-                              }
-                            },
-                          ),
-
-                          /*child: FadeInImage(
-                        fadeOutDuration: Duration(milliseconds: 20),
-                        imageErrorBuilder: (BuildContext context,
-                            Object exception, StackTrace stackTrace) {
-                          //print('Error Handler');
-                          return Container(
-                            width: 128.0,
-                            height: 128.0,
-                            child: Image.asset('images/pixel.gif'),
-                          );
-                        },
-                        placeholder: AssetImage('images/pixel.gif'),
-                        image: infoNews[index].infimg == ''
-                            ? AssetImage('images/pixel.gif')
-                            : NetworkImage('https://' +
-                                approShop +
-                                '.catbuilder.info/catalogs/' +
-                                getText(infoNews[index].infimg)),
-                        fit: BoxFit.contain,
-                        //height: 128.0,
-                        width: MediaQuery.of(context).size.width,
-                      ),*/
-                        ),
-                        Container(
-                            height: infoNews[index].infdet == '' ? 0.0 : 5.0),
-                        //Text(getText(infoNews[index].infdet)),
-                        ListTile(
-                          //minLeadingWidth: 20.0,
-                          dense: true,
-                          horizontalTitleGap: 0.0,
-                          contentPadding: EdgeInsets.all(0.0),
-                          leading: infoNews[index].infsta == 1
-                              ? IconButton(
-                            padding: EdgeInsets.only(
-                                top: 0.0, left: 0.0, right: 4.0),
-                            icon: Icon(Icons.check_box_outlined),
-                            onPressed: () {
-                              setState(() {
-                                infoNews[index].infsta = 0;
-                              });
-                              _refreshInfoNews();
-                            },
-                          )
-                              : IconButton(
-                            padding: EdgeInsets.only(
-                                top: 0.0, left: 0.0, right: 4.0),
-                            icon: Icon(
-                                Icons.check_box_outline_blank_outlined),
-                            onPressed: () {
-                              setState(() {
-                                infoNews[index].infsta = 1;
-                              });
-                              _refreshInfoNews();
-                            },
-                          ),
-                          title: Text(getText(infoNews[index].inftit)),
-
-                          onTap: () async {
-                            switch (infoNews[index].infact) {
-                              case 'search':
-                                setState(() {
-                                  infoNews[index].infsta = 1;
-                                });
-                                List<CatLevel> _result = [];
-                                _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
-                                var route = MaterialPageRoute(
-                                  builder: (BuildContext context) => ChapterScreen(
-                                      _result,
-                                      infoNews[index].inftit,
-                                      null),
-                                );
-                                Navigator.of(context).push(route);
-                                break;
-                              case 'goto':
-                                setState(() {
-                                  infoNews[index].infsta = 1;
-                                });
-
-                                globals.infoCounter.value = infoNews
-                                    .where((r) => r.infsta == 0)
-                                    .toList()
-                                    .length;
-                                var route = MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      FavoriteDetailScreen(
-                                        basdes: getText(infoNews[index].inftit),
-                                        basval: getItemToken(
-                                            getItemToken(
-                                                infoNews[index].inflin, '/', 2),
-                                            '.',
-                                            1),
-                                        basurl: infoNews[index].inflin,
-                                        synctoc: true,
-                                      ),
-                                );
-                                Navigator.of(context).push(route);
-                                break;
-                            }
-                          },
-                          trailing: infoNews[index].infact == ''
-                              ? Container()
-                              : Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                        )
-                      ]),
-                      onTap: () async {
-                        switch (infoNews[index].infact) {
-                          case 'search':
-                            setState(() {
-                              infoNews[index].infsta = 1;
-                            });
-                            List<CatLevel> _result = [];
-                            _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
-                            var route = MaterialPageRoute(
-                              builder: (BuildContext context) => ChapterScreen(
-                                  _result,
-                                  infoNews[index].inftit,
-                                  null),
-                            );
-                            Navigator.of(context).push(route);
-                            break;
-                          case 'goto':
-                            setState(() {
-                              infoNews[index].infsta = 1;
-                            });
-                            _refreshInfoNews();
-                            var route = MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  FavoriteDetailScreen(
-                                    basdes: getText(infoNews[index].inftit),
-                                    basval: getItemToken(
-                                        getItemToken(
-                                            infoNews[index].inflin, '/', 2),
-                                        '.',
-                                        1),
-                                    basurl: infoNews[index].inflin,
-                                    synctoc: true,
-                                  ),
-                            );
-                            Navigator.of(context).push(route);
-                            break;
-                        }
-                      },
-                    ),
-                    //Divider(height: 1.0,),
-                  ],
-                );
-              }),
-          Container(
-            color: Colors.white,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        ]),
+          padding: EdgeInsets.only(top: 0.0, bottom: 60),
+          child: futureBuilder
       ),
     );
   }
