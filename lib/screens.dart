@@ -4367,7 +4367,10 @@ class _TouchInfoState extends State<TouchInfo> {
                             icon: _stock
                                 ? Icon(Icons.expand_less_outlined,
                                     color: Colors.grey)
-                                : Icon(Icons.expand_more_outlined),
+                                : Image.asset(
+                              'images/pricetag.png',
+                              width: 16.0,
+                            ), /*Icons.expand_more_outlined*/
                             iconSize: 23.0,
                             color: Colors.grey,
                             onPressed: () async {
