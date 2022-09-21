@@ -26,7 +26,7 @@ import 'package:printing/printing.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-GlobalKey<_TreeScreen> approTreeScreen=GlobalKey<_TreeScreen>();
+GlobalKey<_TreeScreen> approTreeScreen = GlobalKey<_TreeScreen>();
 
 class MainTabState extends StatefulWidget {
   final BuildContext menuScreenContext;
@@ -176,7 +176,9 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
         title: AppLocalizations.of(context).catalog,
         activeColorPrimary: globals.menuActiveColor,
         inactiveColorPrimary: globals.menuInactiveColor,
-        routeAndNavigatorSettings: RouteAndNavigatorSettings(initialRoute: '/tree',),
+        routeAndNavigatorSettings: RouteAndNavigatorSettings(
+          initialRoute: '/tree',
+        ),
       ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.add),
@@ -473,15 +475,7 @@ class NewsScreen extends StatefulWidget {
 class _NewsScreen extends State<NewsScreen> {
   _NewsScreen();
 
-  num _position = 1;
-  num _count = 0;
   var storage = new InfoNewsStorage();
-
-  doneLoading() {
-    setState(() {
-      _position = 0;
-    });
-  }
 
   _refreshInfoNews() {
     globals.infoCounter.value =
@@ -490,218 +484,220 @@ class _NewsScreen extends State<NewsScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
   Widget build(BuildContext context) {
+    var futureBuilder = FutureBuilder(
+      future: getNews(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          default:
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return ListView.builder(
+                  itemCount: infoNews.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(
+                      children: <Widget>[
+                        ValueListenableBuilder(
+                            valueListenable: globals.infoCounter,
+                            builder: (BuildContext context, int value,
+                                Widget child) {
+                              return ListTile(
+                                title: Column(children: <Widget>[
+                                  Container(
+                                    padding:
+                                        EdgeInsets.only(top: 2.0, bottom: 0.0),
+                                    child: Image.network(
+                                      'https://' +
+                                          approShop +
+                                          '.catbuilder.info/catalogs/' +
+                                          getText(infoNews[index].infimg),
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (BuildContext context,
+                                          Widget child,
+                                          ImageChunkEvent loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return Center(child: child);
+                                        } else {
+                                          return Container();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  Container(
+                                      height: infoNews[index].infdet == ''
+                                          ? 0.0
+                                          : 5.0),
+                                  //Text(getText(infoNews[index].infdet)),
+                                  ListTile(
+                                    //minLeadingWidth: 20.0,
+                                    dense: true,
+                                    horizontalTitleGap: 0.0,
+                                    contentPadding: EdgeInsets.all(0.0),
+                                    leading: infoNews[index].infsta == 1
+                                        ? IconButton(
+                                            padding: EdgeInsets.only(
+                                                top: 0.0,
+                                                left: 0.0,
+                                                right: 4.0),
+                                            icon:
+                                                Icon(Icons.check_box_outlined),
+                                            onPressed: () {
+                                              infoNews[index].infsta = 0;
+                                              _refreshInfoNews();
+                                            },
+                                          )
+                                        : IconButton(
+                                            padding: EdgeInsets.only(
+                                                top: 0.0,
+                                                left: 0.0,
+                                                right: 4.0),
+                                            icon: Icon(Icons
+                                                .check_box_outline_blank_outlined),
+                                            onPressed: () {
+                                              infoNews[index].infsta = 1;
+                                              _refreshInfoNews();
+                                            },
+                                          ),
+                                    title:
+                                        Text(getText(infoNews[index].inftit)),
+
+                                    onTap: () async {
+                                      switch (infoNews[index].infact) {
+                                        case 'search':
+                                          infoNews[index].infsta = 1;
+                                          _refreshInfoNews();
+                                          List<CatLevel> _result = [];
+                                          _result = await searchItem(
+                                              getItemToken(
+                                                  infoNews[index].inflin,
+                                                  '|',
+                                                  1),
+                                              getItemToken(
+                                                  infoNews[index].inflin,
+                                                  '|',
+                                                  2),
+                                              context);
+                                          var route = MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                ChapterScreen(
+                                                    _result,
+                                                    infoNews[index].inftit,
+                                                    null),
+                                          );
+                                          Navigator.of(context).push(route);
+                                          break;
+
+                                        case 'goto':
+                                          infoNews[index].infsta = 1;
+                                          globals.infoCounter.value = infoNews
+                                              .where((r) => r.infsta == 0)
+                                              .toList()
+                                              .length;
+                                          var route = MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                FavoriteDetailScreen(
+                                              basdes: getText(
+                                                  infoNews[index].inftit),
+                                              basval: getItemToken(
+                                                  getItemToken(
+                                                      infoNews[index].inflin,
+                                                      '/',
+                                                      2),
+                                                  '.',
+                                                  1),
+                                              basurl: infoNews[index].inflin,
+                                              synctoc: true,
+                                            ),
+                                          );
+                                          Navigator.of(context).push(route);
+                                          break;
+                                      }
+                                    },
+                                    trailing: infoNews[index].infact == ''
+                                        ? Container()
+                                        : Icon(Icons.arrow_forward_ios_rounded,
+                                            size: 16),
+                                  )
+                                ]),
+                                onTap: () async {
+                                  switch (infoNews[index].infact) {
+                                    case 'search':
+                                      infoNews[index].infsta = 1;
+                                      _refreshInfoNews();
+                                      List<CatLevel> _result = [];
+                                      _result = await searchItem(
+                                          getItemToken(
+                                              infoNews[index].inflin, '|', 1),
+                                          getItemToken(
+                                              infoNews[index].inflin, '|', 2),
+                                          context);
+                                      var route = MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            ChapterScreen(_result,
+                                                infoNews[index].inftit, null),
+                                      );
+                                      Navigator.of(context).push(route);
+                                      break;
+                                    case 'goto':
+                                      infoNews[index].infsta = 1;
+                                      _refreshInfoNews();
+                                      var route = MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            FavoriteDetailScreen(
+                                          basdes:
+                                              getText(infoNews[index].inftit),
+                                          basval: getItemToken(
+                                              getItemToken(
+                                                  infoNews[index].inflin,
+                                                  '/',
+                                                  2),
+                                              '.',
+                                              1),
+                                          basurl: infoNews[index].inflin,
+                                          synctoc: true,
+                                        ),
+                                      );
+                                      Navigator.of(context).push(route);
+                                      break;
+                                  }
+                                },
+                              );
+                            }),
+                        //Divider(height: 1.0,),
+                      ],
+                    );
+                  });
+            }
+        }
+      },
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
           title: Row(children: <Widget>[
-            Expanded(
-                child: Text(getText(approNewsTitle),
-                    style: TextStyle(fontSize: 14.0))),
-            Container(width: 8.0),
-            IconButton(
-              padding: EdgeInsets.only(top: 0.0, left: 16.0, right: 16.0),
-              icon: Icon(Icons.check_box_outlined),
-              onPressed: () {
-                setState(() {
-                  for (var e in infoNews) {
-                    e.infsta = 1;
-                  }
-                });
-                _refreshInfoNews();
-              },
-            ),
-          ])),
+        Expanded(
+            child: Text(getText(approNewsTitle),
+                style: TextStyle(fontSize: 14.0))),
+        Container(width: 8.0),
+        IconButton(
+          padding: EdgeInsets.only(top: 0.0, left: 16.0, right: 16.0),
+          icon: Icon(Icons.check_box_outlined),
+          onPressed: () {
+            setState(() {
+              for (var e in infoNews) {
+                e.infsta = 1;
+              }
+            });
+            _refreshInfoNews();
+          },
+        ),
+      ])),
       body: Container(
-        padding: EdgeInsets.only(top: 0.0, bottom: 60),
-        child: IndexedStack(index: _position, children: <Widget>[
-          ListView.builder(
-              itemCount: infoNews.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: <Widget>[
-                    ListTile(
-                      title: Column(children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.only(top: 2.0, bottom: 0.0),
-                          child: Image.network(
-                            'https://' +
-                                approShop +
-                                '.catbuilder.info/catalogs/' +
-                                getText(infoNews[index].infimg),
-                            fit: BoxFit.cover,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent loadingProgress) {
-                              if (loadingProgress == null) {
-                                _count++;
-                                if (_count == infoNews.length) {
-                                  Future.delayed(Duration(seconds: 1),
-                                          () => doneLoading());
-                                }
-                                return Center(child: child);
-                              } else {
-                                return Container();
-                              }
-                            },
-                          ),
-
-                          /*child: FadeInImage(
-                        fadeOutDuration: Duration(milliseconds: 20),
-                        imageErrorBuilder: (BuildContext context,
-                            Object exception, StackTrace stackTrace) {
-                          //print('Error Handler');
-                          return Container(
-                            width: 128.0,
-                            height: 128.0,
-                            child: Image.asset('images/pixel.gif'),
-                          );
-                        },
-                        placeholder: AssetImage('images/pixel.gif'),
-                        image: infoNews[index].infimg == ''
-                            ? AssetImage('images/pixel.gif')
-                            : NetworkImage('https://' +
-                                approShop +
-                                '.catbuilder.info/catalogs/' +
-                                getText(infoNews[index].infimg)),
-                        fit: BoxFit.contain,
-                        //height: 128.0,
-                        width: MediaQuery.of(context).size.width,
-                      ),*/
-                        ),
-                        Container(
-                            height: infoNews[index].infdet == '' ? 0.0 : 5.0),
-                        //Text(getText(infoNews[index].infdet)),
-                        ListTile(
-                          //minLeadingWidth: 20.0,
-                          dense: true,
-                          horizontalTitleGap: 0.0,
-                          contentPadding: EdgeInsets.all(0.0),
-                          leading: infoNews[index].infsta == 1
-                              ? IconButton(
-                            padding: EdgeInsets.only(
-                                top: 0.0, left: 0.0, right: 4.0),
-                            icon: Icon(Icons.check_box_outlined),
-                            onPressed: () {
-                              setState(() {
-                                infoNews[index].infsta = 0;
-                              });
-                              _refreshInfoNews();
-                            },
-                          )
-                              : IconButton(
-                            padding: EdgeInsets.only(
-                                top: 0.0, left: 0.0, right: 4.0),
-                            icon: Icon(
-                                Icons.check_box_outline_blank_outlined),
-                            onPressed: () {
-                              setState(() {
-                                infoNews[index].infsta = 1;
-                              });
-                              _refreshInfoNews();
-                            },
-                          ),
-                          title: Text(getText(infoNews[index].inftit)),
-
-                          onTap: () async {
-                            switch (infoNews[index].infact) {
-                              case 'search':
-                                setState(() {
-                                  infoNews[index].infsta = 1;
-                                });
-                                List<CatLevel> _result = [];
-                                _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
-                                var route = MaterialPageRoute(
-                                  builder: (BuildContext context) => ChapterScreen(
-                                      _result,
-                                      infoNews[index].inftit,
-                                      null),
-                                );
-                                Navigator.of(context).push(route);
-                                break;
-                              case 'goto':
-                                setState(() {
-                                  infoNews[index].infsta = 1;
-                                });
-
-                                globals.infoCounter.value = infoNews
-                                    .where((r) => r.infsta == 0)
-                                    .toList()
-                                    .length;
-                                var route = MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      FavoriteDetailScreen(
-                                        basdes: getText(infoNews[index].inftit),
-                                        basval: getItemToken(
-                                            getItemToken(
-                                                infoNews[index].inflin, '/', 2),
-                                            '.',
-                                            1),
-                                        basurl: infoNews[index].inflin,
-                                        synctoc: true,
-                                      ),
-                                );
-                                Navigator.of(context).push(route);
-                                break;
-                            }
-                          },
-                          trailing: infoNews[index].infact == ''
-                              ? Container()
-                              : Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                        )
-                      ]),
-                      onTap: () async {
-                        switch (infoNews[index].infact) {
-                          case 'search':
-                            setState(() {
-                              infoNews[index].infsta = 1;
-                            });
-                            List<CatLevel> _result = [];
-                            _result = await searchItem(getItemToken(infoNews[index].inflin,'|',1),getItemToken(infoNews[index].inflin,'|',2),context);
-                            var route = MaterialPageRoute(
-                              builder: (BuildContext context) => ChapterScreen(
-                                  _result,
-                                  infoNews[index].inftit,
-                                  null),
-                            );
-                            Navigator.of(context).push(route);
-                            break;
-                          case 'goto':
-                            setState(() {
-                              infoNews[index].infsta = 1;
-                            });
-                            _refreshInfoNews();
-                            var route = MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  FavoriteDetailScreen(
-                                    basdes: getText(infoNews[index].inftit),
-                                    basval: getItemToken(
-                                        getItemToken(
-                                            infoNews[index].inflin, '/', 2),
-                                        '.',
-                                        1),
-                                    basurl: infoNews[index].inflin,
-                                    synctoc: true,
-                                  ),
-                            );
-                            Navigator.of(context).push(route);
-                            break;
-                        }
-                      },
-                    ),
-                    //Divider(height: 1.0,),
-                  ],
-                );
-              }),
-          Container(
-            color: Colors.white,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        ]),
-      ),
+          padding: EdgeInsets.only(top: 0.0, bottom: 60), child: futureBuilder),
     );
   }
 }
@@ -1056,14 +1052,14 @@ class _FavoriteScreen extends State<FavoriteScreen> {
 class FavoriteDetailScreen extends StatefulWidget {
   const FavoriteDetailScreen(
       {Key key,
-        this.menuScreenContext,
-        this.onScreenHideButtonPressed,
-        this.hideStatus = false,
-        this.basdes = '',
-        this.basval = '',
-        this.basurl = '',
-        this.synctoc = false,
-        this.syncnum = ''})
+      this.menuScreenContext,
+      this.onScreenHideButtonPressed,
+      this.hideStatus = false,
+      this.basdes = '',
+      this.basval = '',
+      this.basurl = '',
+      this.synctoc = false,
+      this.syncnum = ''})
       : super(key: key);
   final BuildContext menuScreenContext;
   final Function onScreenHideButtonPressed;
@@ -1074,7 +1070,15 @@ class FavoriteDetailScreen extends StatefulWidget {
   final bool synctoc;
   final String syncnum;
   @override
-  _FavoriteDetailScreen createState() => _FavoriteDetailScreen(menuScreenContext, onScreenHideButtonPressed, hideStatus,basdes,basval,basurl,synctoc,syncnum);
+  _FavoriteDetailScreen createState() => _FavoriteDetailScreen(
+      menuScreenContext,
+      onScreenHideButtonPressed,
+      hideStatus,
+      basdes,
+      basval,
+      basurl,
+      synctoc,
+      syncnum);
 }
 
 class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
@@ -1097,8 +1101,10 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
   final String syncnum;
 
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
   var _position;
+  var _pdfIndex = 0;
 
   void _showPDF(context, replace) async {
     List<String> myUrl = [''];
@@ -1140,7 +1146,6 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
   }
 
   @override
-
   Widget build(BuildContext context) {
     var _product = Product('');
     var futureBuilder = FutureBuilder(
@@ -1158,8 +1163,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
           default:
             if (snapshot.hasError) {
               Future.delayed(Duration(milliseconds: 200)).then((v) {
-                restoreShopConnexion(
-                    context, '2:Security');
+                restoreShopConnexion(context, '2:Security');
               });
               return Scaffold(
                   appBar: AppBar(),
@@ -1189,17 +1193,18 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
       BuildContext context, AsyncSnapshot snapshot, Product product) {
     List<BasketDetail> values = snapshot.data;
     _position = 0;
-    if(syncnum != '') {
-      _position = values.indexWhere((e) => e.artnumint == syncnum) ;
-      if(_position == -1) _position = 0;
+    if (syncnum != '') {
+      _position = values.indexWhere((e) => e.artnumint == syncnum);
+      if (_position == -1) _position = 0;
     }
+    _pdfIndex = values.indexWhere((element) => element.artpdf.length > 0);
     //print('Position: $_position');
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
             title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //crossAxisAlignment: CrossAxisAlignment.start,
+                //crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
               Expanded(
                   child: Text(
@@ -1208,6 +1213,19 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                 overflow: TextOverflow.ellipsis,
                 softWrap: true,
               )),
+              _pdfIndex == -1
+                  ? Container()
+                  : IconButton(
+                      icon: Image.asset(
+                        'images/ft.png',
+                        width: 24.0,
+                      ),
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        _showItemPDF(context, values[_pdfIndex].artpdf,
+                            values[_pdfIndex].artdes);
+                      },
+                    ),
               basurl == '' || approPDFSuffix == 'x' || product.sheet == ''
                   ? Container()
                   : IconButton(
@@ -1227,93 +1245,119 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
           child: ScrollablePositionedList.builder(
             itemCount: values.length,
             initialScrollIndex: _position,
-            scrollDirection : Axis.vertical,
+            scrollDirection: Axis.vertical,
             itemPositionsListener: itemPositionsListener,
             itemScrollController: itemScrollController,
             itemBuilder: (BuildContext context, int index) {
-              return  Column(
+              return Column(
                 children: <Widget>[
                   ListTile(
-                  title: Row(
-                        children:<Widget> [GestureDetector(
-                            onTap: () {
-                              if (basurl == '') return;
-                              if (values[index].repcod == '') {
-                                if (basurl.indexOf('/catalogs/') == -1) {
-                                  values[index].repcod =
-                                      getItemToken(basurl, '/', 1);
-                                } else {
-                                  values[index].repcod = getItemToken(
-                                      getItemToken(basurl, '/catalogs/', 2),
-                                      '/',
-                                      1);
-                                }
-                              }
-                              var route = MaterialPageRoute(
-                                builder: (BuildContext context) => ItemDetailScreen(
-                                    itemSelected: values[index],
-                                    productSelected: product),
-                              );
-                              Navigator.of(context).push(route);
-                            },
-                            child: FadeInImage(
-                                imageErrorBuilder: (BuildContext context,
-                                    Object exception, StackTrace stackTrace) {
-                                  //print('Error Handler');
-                                  return Container(
-                                    width: 64.0 * approThumbSizeRatio,
-                                    height: 64.0 * approThumbSizeRatio,
-                                    child: Image.asset('images/pixel.gif'),
-                                  );
-                                },
-                                placeholder: AssetImage('images/pixel.gif'),
-                                image: values[index].nodnum == ''
-                                    ? AssetImage('images/pixel.gif')
-                                    : NetworkImage('https://' +
-                                    approShop +
-                                    '.catbuilder.info/catalogs/thumbs/' +
-                                    (values[index].artimg == ''
-                                        ? values[index].nodnum
-                                        : values[index].artimg) +
-                                    '.jpg'),
-                                fit: BoxFit.contain,
-                                height: 64.0 * approThumbSizeRatio,
-                                width: 64.0 * approThumbSizeRatio,
-                              ),
-                              //Image.network('https://'+approShop+'.catbuilder.info/catalogs/thumbs/'+ values[index].nodnum +'.jpg'),
-                            ),
-                          SizedBox(width: 10,),
-                          Expanded( child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(values[index].artdes),
-                          Wrap(
-                            direction: Axis.horizontal,
-                              children: <Widget>[ if (synctoc) ElevatedButton(onPressed: () async {
-                                  await getNodePath(values[index].nodnum,values[index].repcod, context);
-                                  if (currentNodePath != '') {
-                                    mainTab.jumpToTab(1);
-                                    if(approTreeScreen.currentContext == null) {
-                                      await Future.delayed(const Duration(
-                                          milliseconds: 100), () {});
-                                    }
+                    title: Row(children: <Widget>[
+                      GestureDetector(
+                        onTap: () {
+                          if (basurl == '') return;
+                          if (values[index].repcod == '') {
+                            if (basurl.indexOf('/catalogs/') == -1) {
+                              values[index].repcod =
+                                  getItemToken(basurl, '/', 1);
+                            } else {
+                              values[index].repcod = getItemToken(
+                                  getItemToken(basurl, '/catalogs/', 2),
+                                  '/',
+                                  1);
+                            }
+                          }
+                          var route = MaterialPageRoute(
+                            builder: (BuildContext context) => ItemDetailScreen(
+                                itemSelected: values[index],
+                                productSelected: product),
+                          );
+                          Navigator.of(context).push(route);
+                        },
+                        child: FadeInImage(
+                          imageErrorBuilder: (BuildContext context,
+                              Object exception, StackTrace stackTrace) {
+                            //print('Error Handler');
+                            return Container(
+                              width: 64.0 * approThumbSizeRatio,
+                              height: 64.0 * approThumbSizeRatio,
+                              child: Image.asset('images/pixel.gif'),
+                            );
+                          },
+                          placeholder: AssetImage('images/pixel.gif'),
+                          image: values[index].nodnum == ''
+                              ? AssetImage('images/pixel.gif')
+                              : NetworkImage('https://' +
+                                  approShop +
+                                  '.catbuilder.info/catalogs/thumbs/' +
+                                  (values[index].artimg == ''
+                                      ? values[index].nodnum
+                                      : values[index].artimg) +
+                                  '.jpg'),
+                          fit: BoxFit.contain,
+                          height: 64.0 * approThumbSizeRatio,
+                          width: 64.0 * approThumbSizeRatio,
+                        ),
+                        //Image.network('https://'+approShop+'.catbuilder.info/catalogs/thumbs/'+ values[index].nodnum +'.jpg'),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                            Text(values[index].artdes),
+                            Wrap(direction: Axis.horizontal, children: <Widget>[
+                              if (synctoc)
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    await getNodePath(values[index].nodnum,
+                                        values[index].repcod, context);
+                                    if (currentNodePath != '') {
+                                      mainTab.jumpToTab(1);
+                                      if (approTreeScreen.currentContext ==
+                                          null) {
+                                        await Future.delayed(
+                                            const Duration(milliseconds: 100),
+                                            () {});
+                                      }
 
-                                    final _context = approTreeScreen.currentContext;
+                                      final _context =
+                                          approTreeScreen.currentContext;
 
-                                    final _name = '/tree';
-                                    if( _context != null) {
-                                      Navigator.of(_context).popUntil(ModalRoute.withName("/tree"));
+                                      final _name = '/tree';
+                                      if (_context != null) {
+                                        Navigator.of(_context).popUntil(
+                                            ModalRoute.withName("/tree"));
+                                      }
+                                      await syncNode(
+                                          treeRoot,
+                                          _name,
+                                          _context,
+                                          onScreenHideButtonPressed,
+                                          1,
+                                          values[index].artnumint);
                                     }
-                                    await syncNode(treeRoot, _name, _context,onScreenHideButtonPressed,1,values[index].artnumint);
-                                  }
-                                },
-                                  style: ElevatedButton.styleFrom(primary: myTheme.toggleButtonsTheme.color, visualDensity: VisualDensity.compact ,textStyle: TextStyle(fontSize: 12.0)),
-                                  child: Text(values[index].artnumint,
-                                  ),) else Text(values[index].artnumint,
-                                  style: TextStyle(
-                                    color: globals.artnumintColor,
-                                    backgroundColor: syncnum == values[index].artnumint ? Colors.amberAccent : myTheme.canvasColor,
-                                  )),
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      primary: myTheme.toggleButtonsTheme.color,
+                                      visualDensity: VisualDensity.compact,
+                                      textStyle: TextStyle(fontSize: 12.0)),
+                                  child: Text(
+                                    values[index].artnumint,
+                                  ),
+                                )
+                              else
+                                Text(values[index].artnumint,
+                                    style: TextStyle(
+                                      color: globals.artnumintColor,
+                                      backgroundColor:
+                                          syncnum == values[index].artnumint
+                                              ? Colors.amberAccent
+                                              : myTheme.canvasColor,
+                                    )),
+                              /*
                                 values[index].artpdf.length > 0
                                     ? IconButton(
                                         icon: Icon(SimpleLineIcons.book_open,
@@ -1326,15 +1370,33 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                         },
                                       )
                                     : Container(),
-                              ]),
-                  ])),
-                          SizedBox(width: 10,),
-                          CheckedWidget(values[index]),
-
-                        ]),
+                                */
+                            ]),
+                          ])),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      CheckedWidget(values[index]),
+                    ]),
                     //onTa]),p: () {},
-           //         trailing: CheckedWidget(values[index]),
+                    //         trailing: CheckedWidget(values[index]),
                   ),
+                  ListTile(
+                      title: Row(children: <Widget>[
+                    TouchInfo(
+                      //onScreenHideButtonPressed: onScreenHideButtonPressed,
+                      //                         displayFormat: ,
+                      textStyle: TextStyle(fontSize: 12),
+                      iconSize: 24.0,
+                      iconActiveColor: Colors.red,
+                      iconDisabledColor: Colors.grey,
+                      iconPadding: EdgeInsets.all(2),
+                      artnumint: values[index].artnumint,
+                      artpri: values[index].artpri,
+                      enabled: true,
+                      leftPadding:  64.0 * approThumbSizeRatio,
+                    ),
+                  ],),),
                   ValueListenableBuilder(
                       valueListenable: globals.favoriteRefresh,
                       builder:
@@ -1376,7 +1438,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                     iconActiveColor: Colors.red,
                                     iconDisabledColor: Colors.grey,
                                     iconPadding: EdgeInsets.all(2),
-                                    showStockIcon: approShowStockIcon,
+                                    showStockIcon: false,
                                     artnumint: basketChecked[_bindex].artnumint,
                                     onChanged: (val) {
                                       basketChecked[_bindex].artqty = val;
@@ -1386,6 +1448,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                           globals.basketCounter.value - 1;
                                     },
                                     enabled: true,
+                                    leftPadding: 64.0 * approThumbSizeRatio,
                                   ),
                                 ),
                               )
@@ -1447,15 +1510,13 @@ class ItemDetailScreen extends StatelessWidget {
           default:
             if (snapshot.hasError) {
               Future.delayed(Duration(milliseconds: 200)).then((v) {
-                restoreShopConnexion(
-                    context, '2:Security');
+                restoreShopConnexion(context, '2:Security');
               });
               return Scaffold(
                   appBar: AppBar(),
                   backgroundColor: Colors.white,
                   body: Center(child: Container()));
-            }
-            else
+            } else
               return createListViewDetail(context, snapshot);
         }
       },
@@ -1571,15 +1632,13 @@ class _TreeScreen extends State<TreeScreen> {
       await launchUrl(
         url,
         webViewConfiguration: WebViewConfiguration(
-          enableJavaScript: true,),
-
+          enableJavaScript: true,
+        ),
       );
     } else {
       throw 'Could not launch $url';
     }
   }
-
-
 
   @override
   void initState() {
@@ -1684,33 +1743,39 @@ class _TreeScreen extends State<TreeScreen> {
             return Column(
               children: <Widget>[
                 ListTile(
-                    title: Row(
-                        children:<Widget> [FadeInImage(
-                      imageErrorBuilder: (BuildContext context,
-                          Object exception, StackTrace stackTrace) {
-                        //print('Error Handler');
-                        return Container(
-                          width: 64.0 * approThumbSizeRatio,
-                          height: 64.0 * approThumbSizeRatio,
-                          child: Image.asset('images/pixel.gif'),
-                        );
-                      },
-                      placeholder: AssetImage('images/pixel.gif'),
-                      image: treeRoot[index].nodimg == ''
-                          ? AssetImage('images/pixel.gif')
-                          : NetworkImage('https://' +
-                          approShop +
-                          '.catbuilder.info/catalogs/' +
-                          treeRoot[index].nodimg, scale:1.0),
-
-                      fit: BoxFit.contain,
-                      height: 64.0 * approThumbSizeRatio,
-                      width: 64.0 * approThumbSizeRatio,
-                    ),
-                    SizedBox(width: 10,),
-                    Expanded( child:Text(treeRoot[index].noddes)),
-                    SizedBox(width: 10,),
-                    Icon(Icons.arrow_forward_ios_rounded, size: 16)]),
+                    title: Row(children: <Widget>[
+                      FadeInImage(
+                        imageErrorBuilder: (BuildContext context,
+                            Object exception, StackTrace stackTrace) {
+                          //print('Error Handler');
+                          return Container(
+                            width: 64.0 * approThumbSizeRatio,
+                            height: 64.0 * approThumbSizeRatio,
+                            child: Image.asset('images/pixel.gif'),
+                          );
+                        },
+                        placeholder: AssetImage('images/pixel.gif'),
+                        image: treeRoot[index].nodimg == ''
+                            ? AssetImage('images/pixel.gif')
+                            : NetworkImage(
+                                'https://' +
+                                    approShop +
+                                    '.catbuilder.info/catalogs/' +
+                                    treeRoot[index].nodimg,
+                                scale: 1.0),
+                        fit: BoxFit.contain,
+                        height: 64.0 * approThumbSizeRatio,
+                        width: 64.0 * approThumbSizeRatio,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(child: Text(treeRoot[index].noddes)),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 16)
+                    ]),
                     onTap: () async {
                       if (treeRoot[index].nodnum.indexOf('goto_external(') >
                           -1) {
@@ -1821,33 +1886,40 @@ class _ChapterScreen extends State<ChapterScreen> {
                     title: Text(nodeChildren[index].noddes),
                     trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
 */
-                    title: Row(
-                        children:<Widget> [FadeInImage(
-                          imageErrorBuilder: (BuildContext context,
-                              Object exception, StackTrace stackTrace) {
-                            //print('Error Handler');
-                            return Container(
-                              width: 64.0 * approThumbSizeRatio,
-                              height: 64.0 * approThumbSizeRatio,
-                              child: Image.asset('images/pixel.gif'),
-                            );
-                          },
-                          placeholder: AssetImage('images/pixel.gif'),
-                          image: nodeChildren[index].nodimg == ''
-                              ? AssetImage('images/pixel.gif')
-                              : NetworkImage('https://' +
-                              approShop +
-                              '.catbuilder.info/catalogs/' +
-                              nodeChildren[index].nodimg, scale:1.0),
-
-                          fit: BoxFit.contain,
-                          height: 64.0 * approThumbSizeRatio,
-                          width: 64.0 * approThumbSizeRatio,
-                        ),
-                          SizedBox(width: 10,),
-                          Expanded( child:Text(nodeChildren[index].noddes)),
-                          SizedBox(width: 10,),
-                          Icon(Icons.arrow_forward_ios_rounded, size: 16)]),                    onTap: () async {
+                    title: Row(children: <Widget>[
+                      FadeInImage(
+                        imageErrorBuilder: (BuildContext context,
+                            Object exception, StackTrace stackTrace) {
+                          //print('Error Handler');
+                          return Container(
+                            width: 64.0 * approThumbSizeRatio,
+                            height: 64.0 * approThumbSizeRatio,
+                            child: Image.asset('images/pixel.gif'),
+                          );
+                        },
+                        placeholder: AssetImage('images/pixel.gif'),
+                        image: nodeChildren[index].nodimg == ''
+                            ? AssetImage('images/pixel.gif')
+                            : NetworkImage(
+                                'https://' +
+                                    approShop +
+                                    '.catbuilder.info/catalogs/' +
+                                    nodeChildren[index].nodimg,
+                                scale: 1.0),
+                        fit: BoxFit.contain,
+                        height: 64.0 * approThumbSizeRatio,
+                        width: 64.0 * approThumbSizeRatio,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(child: Text(nodeChildren[index].noddes)),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 16)
+                    ]),
+                    onTap: () async {
                       var route;
                       if (nodeChildren[index].nodtyp == 2) {
                         route = MaterialPageRoute(
@@ -2016,84 +2088,113 @@ class _ScanScreenState extends State<ScanScreen> {
                       child: Column(
                         children: <Widget>[
                           ListTile(
-                            title: Row(
-                                children:<Widget> [Stack(clipBehavior: Clip.hardEdge, children: <
-                                    Widget>[
-                                  FadeInImage(
-                                      imageErrorBuilder: (BuildContext context,
-                                          Object exception, StackTrace stackTrace) {
-                                        //print('Error Handler');
-                                        return Container(
-                                          width: 64.0,
-                                          height: 64.0,
-                                          child:
+                            title: Row(children: <Widget>[
+                              Stack(clipBehavior: Clip.hardEdge, children: <
+                                  Widget>[
+                                FadeInImage(
+                                  imageErrorBuilder: (BuildContext context,
+                                      Object exception, StackTrace stackTrace) {
+                                    //print('Error Handler');
+                                    return Container(
+                                      width: 64.0,
+                                      height: 64.0,
+                                      child:
                                           Image.asset('images/nopicture.jpg'),
-                                        );
-                                      },
-                                      placeholder: AssetImage('images/pixel.gif'),
-                                      image: NetworkImage(basketScanned[index]
-                                          .artimg ==
+                                    );
+                                  },
+                                  placeholder: AssetImage('images/pixel.gif'),
+                                  image: NetworkImage(basketScanned[index]
+                                              .artimg ==
                                           ''
-                                          ? 'https://' +
+                                      ? 'https://' +
                                           approShop +
                                           '.catbuilder.info/showcase/img/nopicture.jpg'
-                                          : basketScanned[index].artimg),
-                                      fit: BoxFit.contain,
-                                      height: 64.0 * approThumbSizeRatio,
-                                      width: 64.0 * approThumbSizeRatio,
-                                    ),
-
-                                  Positioned(
-                                    left: 0,
-                                    top: 0,
-                                    child: ValueListenableBuilder(
-                                        valueListenable: globals.checkoutRefresh,
-                                        builder: (BuildContext context, bool value,
-                                            Widget child) {
-                                          return basketScanned[index].status == 0
-                                                ? Text('')
-                                                : basketScanned[index].status == 1
+                                      : basketScanned[index].artimg),
+                                  fit: BoxFit.contain,
+                                  height: 64.0 * approThumbSizeRatio,
+                                  width: 64.0 * approThumbSizeRatio,
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  top: 0,
+                                  child: ValueListenableBuilder(
+                                      valueListenable: globals.checkoutRefresh,
+                                      builder: (BuildContext context,
+                                          bool value, Widget child) {
+                                        return basketScanned[index].status == 0
+                                            ? Text('')
+                                            : basketScanned[index].status == 1
                                                 ? Icon(
-                                              Icons.check_box,
-                                              color: Colors.green,size:22.0,
-                                            )
+                                                    Icons.check_box,
+                                                    color: Colors.green,
+                                                    size: 22.0,
+                                                  )
                                                 : Icon(
-                                              Icons.cancel,
-                                              color: Colors.red,size:22.0,
-                                            )
-                                          ;
-                                        }),
-                                  ),
-                                ]),
-                                  SizedBox(width:10.0),
-                                  Expanded( child:Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(basketScanned[index].artdes),
-                                    ElevatedButton(onPressed: () async {
-                                      await getNodePath(basketScanned[index].nodnum,basketScanned[index].repcod, context);
-                                      if (currentNodePath != '') {
-                                        mainTab.jumpToTab(1);
-                                        if(approTreeScreen.currentContext == null) {
-                                          await Future.delayed(const Duration(
-                                              milliseconds: 100), () {});
-                                        }
-                                        final _context = approTreeScreen.currentContext;
-                                        final _name = '/tree';
-                                        if (_context != null) {
-                                          Navigator.of(_context).popUntil(ModalRoute.withName("/tree"));
-                                        }
-                                        await syncNode(treeRoot, _name, _context,onScreenHideButtonPressed,1,basketScanned[index].artnumint);
-                                      }
-                                    },
-                                        style: ElevatedButton.styleFrom(primary: myTheme.toggleButtonsTheme.color, visualDensity: VisualDensity.compact ,textStyle: TextStyle(fontSize:  approDataTextSize * 1.0)),
-                                        child: Text(basketScanned[index].artnumint,
-                                        ),),
-                                  /*Text(basketScanned[index].artnumint,
+                                                    Icons.cancel,
+                                                    color: Colors.red,
+                                                    size: 22.0,
+                                                  );
+                                      }),
+                                ),
+                              ]),
+                              SizedBox(width: 10.0),
+                              Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(basketScanned[index].artdes),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          await getNodePath(
+                                              basketScanned[index].nodnum,
+                                              basketScanned[index].repcod,
+                                              context);
+                                          if (currentNodePath != '') {
+                                            mainTab.jumpToTab(1);
+                                            if (approTreeScreen
+                                                    .currentContext ==
+                                                null) {
+                                              await Future.delayed(
+                                                  const Duration(
+                                                      milliseconds: 100),
+                                                  () {});
+                                            }
+                                            final _context =
+                                                approTreeScreen.currentContext;
+                                            final _name = '/tree';
+                                            if (_context != null) {
+                                              Navigator.of(_context).popUntil(
+                                                  ModalRoute.withName("/tree"));
+                                            }
+                                            await syncNode(
+                                                treeRoot,
+                                                _name,
+                                                _context,
+                                                onScreenHideButtonPressed,
+                                                1,
+                                                basketScanned[index].artnumint);
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            primary: myTheme
+                                                .toggleButtonsTheme.color,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            textStyle: TextStyle(
+                                                fontSize:
+                                                    approDataTextSize * 1.0)),
+                                        child: Text(
+                                          basketScanned[index].artnumint,
+                                        ),
+                                      ),
+                                      /*Text(basketScanned[index].artnumint,
                                       style: TextStyle(
                                         color: globals.artnumintColor,
                                       ))*/
-                                ]),),]),
+                                    ]),
+                              ),
+                            ]),
                             // onTap: () {},
                           ),
                           ListTile(
@@ -2271,7 +2372,6 @@ class _BasketScreen extends State<BasketScreen> {
 
   var _storage = new BasketStorage();
 
-
   @override
   void initState() {
     super.initState();
@@ -2360,7 +2460,6 @@ class _BasketScreen extends State<BasketScreen> {
                         PdfScreen(myUrl, AppLocalizations.of(context).cart),
                   );
                   Navigator.of(context).push(route);
-
                 },
               ),
             ],
@@ -2398,95 +2497,95 @@ class _BasketScreen extends State<BasketScreen> {
                         child: Column(children: <Widget>[
                           ListTile(
                               title: Row(
-                                  children:<Widget> [ GestureDetector(
-                                      onTap: () async {
-                                        var _product = Product('');
-                                        await getProductItem(
-                                            '',
-                                            basketChecked[index].repcod +
-                                                '/' +
-                                                basketChecked[index].nodnum +
-                                                '.asp',
-                                            _product);
+                            children: <Widget>[
+                              GestureDetector(
+                                  onTap: () async {
+                                    var _product = Product('');
+                                    await getProductItem(
+                                        '',
+                                        basketChecked[index].repcod +
+                                            '/' +
+                                            basketChecked[index].nodnum +
+                                            '.asp',
+                                        _product);
 
-                                        var route = MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              ItemDetailScreen(
-                                                itemSelected: basketChecked[index],
-                                                productSelected: _product,
-                                              ),
-                                        );
-                                        Navigator.of(context).push(route);
-                                      },
-                                      child: Stack(
-                                        //overflow: Overflow.visible,
-                                          clipBehavior: Clip.hardEdge,
-                                          children: <Widget>[
-                                            FadeInImage(
-                                                imageErrorBuilder:
-                                                    (BuildContext context,
-                                                    Object exception,
-                                                    StackTrace stackTrace) {
-                                                  //print('Error Handler');
-                                                  return Container(
-                                                    width: 64.0 * approThumbSizeRatio,
-                                                    height: 64.0 * approThumbSizeRatio,
-                                                    child: Image.asset(
-                                                        'images/nopicture.jpg'),
-                                                  );
-                                                },
-                                                placeholder:
-                                                AssetImage('images/pixel.gif'),
-                                                image: NetworkImage(basketChecked[
-                                                index]
-                                                    .artimg
-                                                    .indexOf('http') >
-                                                    -1
-                                                    ? basketChecked[index].artimg
-                                                    : 'https://' +
-                                                    approShop +
-                                                    '.catbuilder.info/catalogs/thumbs/' +
-                                                    (basketChecked[index]
-                                                        .artimg ==
-                                                        ''
-                                                        ? basketChecked[index]
-                                                        .nodnum
-                                                        : basketChecked[index]
-                                                        .artimg) +
-                                                    '.jpg'),
-                                                fit: BoxFit.contain,
-                                                height: 64.0  * approThumbSizeRatio,
-                                                width: 64.0  * approThumbSizeRatio,
-                                              ),
-                                            Positioned(
-                                              left: 0,
-                                              top: 0,
-                                              child: ValueListenableBuilder(
-                                                  valueListenable:
+                                    var route = MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ItemDetailScreen(
+                                        itemSelected: basketChecked[index],
+                                        productSelected: _product,
+                                      ),
+                                    );
+                                    Navigator.of(context).push(route);
+                                  },
+                                  child: Stack(
+                                      //overflow: Overflow.visible,
+                                      clipBehavior: Clip.hardEdge,
+                                      children: <Widget>[
+                                        FadeInImage(
+                                          imageErrorBuilder:
+                                              (BuildContext context,
+                                                  Object exception,
+                                                  StackTrace stackTrace) {
+                                            //print('Error Handler');
+                                            return Container(
+                                              width: 64.0 * approThumbSizeRatio,
+                                              height:
+                                                  64.0 * approThumbSizeRatio,
+                                              child: Image.asset(
+                                                  'images/nopicture.jpg'),
+                                            );
+                                          },
+                                          placeholder:
+                                              AssetImage('images/pixel.gif'),
+                                          image: NetworkImage(basketChecked[
+                                                          index]
+                                                      .artimg
+                                                      .indexOf('http') >
+                                                  -1
+                                              ? basketChecked[index].artimg
+                                              : 'https://' +
+                                                  approShop +
+                                                  '.catbuilder.info/catalogs/thumbs/' +
+                                                  (basketChecked[index]
+                                                              .artimg ==
+                                                          ''
+                                                      ? basketChecked[index]
+                                                          .nodnum
+                                                      : basketChecked[index]
+                                                          .artimg) +
+                                                  '.jpg'),
+                                          fit: BoxFit.contain,
+                                          height: 64.0 * approThumbSizeRatio,
+                                          width: 64.0 * approThumbSizeRatio,
+                                        ),
+                                        Positioned(
+                                          left: 0,
+                                          top: 0,
+                                          child: ValueListenableBuilder(
+                                              valueListenable:
                                                   globals.checkoutRefresh,
-                                                  builder: (BuildContext context,
-                                                      bool value, Widget child) {
-                                                    return
-                                                      (basketChecked[index]
-                                                          .status ==
-                                                          0
-                                                          ? Text('')
-                                                          : basketChecked[index]
-                                                          .status ==
-                                                          1
-                                                          ? Icon(
-                                                        Icons.check_box,
-                                                        color:
-                                                        Colors.green,size: 20.0,
-                                                      )
-                                                          : Icon(
-                                                        Icons.cancel,
-                                                        color: Colors.red,size: 20.0,
-                                                      )
-
-                                                      );
-                                                  }),
-                                            ),
+                                              builder: (BuildContext context,
+                                                  bool value, Widget child) {
+                                                return (basketChecked[index]
+                                                            .status ==
+                                                        0
+                                                    ? Text('')
+                                                    : basketChecked[index]
+                                                                .status ==
+                                                            1
+                                                        ? Icon(
+                                                            Icons.check_box,
+                                                            color: Colors.green,
+                                                            size: 20.0,
+                                                          )
+                                                        : Icon(
+                                                            Icons.cancel,
+                                                            color: Colors.red,
+                                                            size: 20.0,
+                                                          ));
+                                              }),
+                                        ),
 /*                                        PositionedDirectional(
                                             start: 50,
                                             bottom: -5,
@@ -2497,41 +2596,67 @@ class _BasketScreen extends State<BasketScreen> {
                                             )),
 
  */
-                                          ])),
-                                    SizedBox(width: 10,),
-                                    Expanded(child:
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                          children:<Widget> [
-                                        Wrap(
+                                      ])),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                    Wrap(
                                         spacing: 2,
                                         runSpacing: 2,
                                         children: <Widget>[
                                           Text(basketChecked[index].artdes),
-                                          Text('')]),
-                                          ElevatedButton(onPressed: () async {
-                                            await getNodePath(basketChecked[index].nodnum,basketChecked[index].repcod, context);
-                                            if (currentNodePath != '') {
-                                              mainTab.jumpToTab(1);
-                                              if(approTreeScreen.currentContext == null) {
-                                                await Future.delayed(const Duration(
-                                                    milliseconds: 100), () {});
-                                              }
-                                              final _context = approTreeScreen.currentContext;
-                                              final _name = '/tree';
-                                              if (_context != null) {
-                                                Navigator.of(_context).popUntil(
-                                                    ModalRoute.withName("/tree"));
-                                              }
-                                              await syncNode(treeRoot, _name, _context,onScreenHideButtonPressed,1,basketChecked[index].artnumint);
-                                            }
-                                          },
-                                            style: ElevatedButton.styleFrom(primary: myTheme.toggleButtonsTheme.color, visualDensity: VisualDensity.compact ,textStyle: TextStyle(fontSize: approDataTextSize * 1.0)),
-                                            child: Text(basketChecked[index].artnumint,
-                                              ),)])
-                                  ),
-                                 ],
-                              )),
+                                          Text('')
+                                        ]),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        await getNodePath(
+                                            basketChecked[index].nodnum,
+                                            basketChecked[index].repcod,
+                                            context);
+                                        if (currentNodePath != '') {
+                                          mainTab.jumpToTab(1);
+                                          if (approTreeScreen.currentContext ==
+                                              null) {
+                                            await Future.delayed(
+                                                const Duration(
+                                                    milliseconds: 100),
+                                                () {});
+                                          }
+                                          final _context =
+                                              approTreeScreen.currentContext;
+                                          final _name = '/tree';
+                                          if (_context != null) {
+                                            Navigator.of(_context).popUntil(
+                                                ModalRoute.withName("/tree"));
+                                          }
+                                          await syncNode(
+                                              treeRoot,
+                                              _name,
+                                              _context,
+                                              onScreenHideButtonPressed,
+                                              1,
+                                              basketChecked[index].artnumint);
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          primary:
+                                              myTheme.toggleButtonsTheme.color,
+                                          visualDensity: VisualDensity.compact,
+                                          textStyle: TextStyle(
+                                              fontSize:
+                                                  approDataTextSize * 1.0)),
+                                      child: Text(
+                                        basketChecked[index].artnumint,
+                                      ),
+                                    )
+                                  ])),
+                            ],
+                          )),
                           ListTile(
                             title: SizedBox(
                               width: 180,
@@ -2544,7 +2669,11 @@ class _BasketScreen extends State<BasketScreen> {
                                 //                         displayFormat: ,
                                 textStyle: TextStyle(fontSize: 16),
                                 iconSize: 24.0,
-                                leftPadding: MediaQuery.of(context).size.width - (64.0 * approThumbSizeRatio) <  220  ? MediaQuery.of(context).size.width - 220 : 64.0 * approThumbSizeRatio,
+                                leftPadding: MediaQuery.of(context).size.width -
+                                            (64.0 * approThumbSizeRatio) <
+                                        220
+                                    ? MediaQuery.of(context).size.width - 220
+                                    : 64.0 * approThumbSizeRatio,
                                 addIcon: Icon(Icons.add_circle_outline),
                                 subtractIcon: Icon(Icons.remove_circle_outline),
                                 iconActiveColor: Colors.red,
@@ -2563,30 +2692,56 @@ class _BasketScreen extends State<BasketScreen> {
                                   Widget child) {
                                 return basketChecked[index].status == 1
                                     ? ListTile(
-                                  leading: ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      minWidth: MediaQuery.of(context).size.width - (59.0 * approThumbSizeRatio) <  220  ? MediaQuery.of(context).size.width - 220 : 59.0 * approThumbSizeRatio,
-                                      maxWidth: MediaQuery.of(context).size.width - (59.0 * approThumbSizeRatio) <  220  ? MediaQuery.of(context).size.width - 220 : 59.0 * approThumbSizeRatio,
-                                    ),
-                                  ),
-                                  title: Wrap(runSpacing: 0, children: <
-                                      Widget>[
-                                    SizedBox(
-                                        height: 32,
-                                        child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                            children: <Widget>[
-                                              basketChecked[index]
-                                                  .artoul.indexOf('|') == -1 ?
-                                              Text(AppLocalizations.of(
-                                                  context)
-                                                  .orderunit +
-                                                  ': ' +
-                                                  basketChecked[index]
-                                                      .artorduni):
-
-                                              OrderUnitWidget(basketChecked[index],true, basketChecked[index].artnumint),
+                                        leading: ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            minWidth: MediaQuery.of(context)
+                                                            .size
+                                                            .width -
+                                                        (59.0 *
+                                                            approThumbSizeRatio) <
+                                                    220
+                                                ? MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    220
+                                                : 59.0 * approThumbSizeRatio,
+                                            maxWidth: MediaQuery.of(context)
+                                                            .size
+                                                            .width -
+                                                        (59.0 *
+                                                            approThumbSizeRatio) <
+                                                    220
+                                                ? MediaQuery.of(context)
+                                                        .size
+                                                        .width -
+                                                    220
+                                                : 59.0 * approThumbSizeRatio,
+                                          ),
+                                        ),
+                                        title: Wrap(runSpacing: 0, children: <
+                                            Widget>[
+                                          SizedBox(
+                                              height: 32,
+                                              child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    basketChecked[index]
+                                                                .artoul
+                                                                .indexOf('|') ==
+                                                            -1
+                                                        ? Text(AppLocalizations
+                                                                    .of(context)
+                                                                .orderunit +
+                                                            ': ' +
+                                                            basketChecked[index]
+                                                                .artorduni)
+                                                        : OrderUnitWidget(
+                                                            basketChecked[
+                                                                index],
+                                                            true,
+                                                            basketChecked[index]
+                                                                .artnumint),
 
 /*                                                    IconButton(
                                                       padding: EdgeInsets.zero,
@@ -2620,102 +2775,103 @@ class _BasketScreen extends State<BasketScreen> {
                                                     )
 
  */
-                                            ])),
-                                    basketChecked[index].artstofla == 'x'
-                                        ? Container()
-                                        : SizedBox(
-                                        height: 20,
-                                        child: Row(children: <Widget>[
-                                          basketChecked[index]
-                                              .artstofla ==
-                                              ''
-                                              ? basketChecked[index]
-                                              .artsto ==
-                                              ''
-                                              ? Text('')
-                                              : Text(AppLocalizations.of(
-                                              context)
-                                              .stock +
-                                              ': ' +
-                                              basketChecked[
-                                              index]
-                                                  .artsto)
-                                              : basketChecked[index]
-                                              .artstofla ==
-                                              'green'
-                                              ? Wrap(
-                                              children: <
-                                                  Widget>[
-                                                Text(AppLocalizations.of(context)
-                                                    .stock +
-                                                    ': '),
-                                                Icon(
-                                                    Icons
-                                                        .circle,
-                                                    color: Colors
-                                                        .green,
-                                                    size:
-                                                    (2 + approDataTextSize) * 1.0)
-                                              ])
-                                              : basketChecked[index]
-                                              .artstofla ==
-                                              'yellow'
-                                              ? Wrap(
-                                              children: <
-                                                  Widget>[
-                                                Text(AppLocalizations.of(context).stock +
-                                                    ': '),
-                                                Icon(
-                                                    Icons
-                                                        .circle,
-                                                    color:
-                                                    Colors.orange,
-                                                    size: (2 + approDataTextSize) * 1.0)
-                                              ])
-                                              : Wrap(
-                                              children: <
-                                                  Widget>[
-                                                Text(AppLocalizations.of(context).stock +
-                                                    ': '),
-                                                Icon(
-                                                    Icons
-                                                        .circle,
-                                                    color:
-                                                    Colors.red,
-                                                    size: (2 + approDataTextSize) * 1.0)
-                                              ])
-                                        ])),
-                                    approShowPrice == false ||
-                                        basketChecked[index].artpri ==
-                                            'x'
-                                        ? Container()
-                                        : SizedBox(
-                                        height: 20,
-                                        child: Row(children: <Widget>[
-                                          Text(AppLocalizations.of(
-                                              context)
-                                              .price +
-                                              ': '),
-                                          Text(basketChecked[index]
-                                              .artpri ==
-                                              basketChecked[index]
-                                                  .artbes
-                                              ? basketChecked[index]
-                                              .artbes +
-                                              ' ' +
-                                              basketChecked[index]
-                                                  .artuni
-                                              : basketChecked[index]
-                                              .artpri +
-                                              ' / ' +
-                                              basketChecked[index]
-                                                  .artbes +
-                                              ' ' +
-                                              basketChecked[index]
-                                                  .artuni)
-                                        ]))
-                                  ]),
-                                )
+                                                  ])),
+                                          basketChecked[index].artstofla == 'x'
+                                              ? Container()
+                                              : SizedBox(
+                                                  height: 20,
+                                                  child: Row(children: <Widget>[
+                                                    basketChecked[index]
+                                                                .artstofla ==
+                                                            ''
+                                                        ? basketChecked[index]
+                                                                    .artsto ==
+                                                                ''
+                                                            ? Text('')
+                                                            : Text(AppLocalizations.of(
+                                                                        context)
+                                                                    .stock +
+                                                                ': ' +
+                                                                basketChecked[
+                                                                        index]
+                                                                    .artsto)
+                                                        : basketChecked[index]
+                                                                    .artstofla ==
+                                                                'green'
+                                                            ? Wrap(
+                                                                children: <
+                                                                    Widget>[
+                                                                    Text(AppLocalizations.of(context)
+                                                                            .stock +
+                                                                        ': '),
+                                                                    Icon(
+                                                                        Icons
+                                                                            .circle,
+                                                                        color: Colors
+                                                                            .green,
+                                                                        size: (2 +
+                                                                                approDataTextSize) *
+                                                                            1.0)
+                                                                  ])
+                                                            : basketChecked[index]
+                                                                        .artstofla ==
+                                                                    'yellow'
+                                                                ? Wrap(
+                                                                    children: <
+                                                                        Widget>[
+                                                                        Text(AppLocalizations.of(context).stock +
+                                                                            ': '),
+                                                                        Icon(
+                                                                            Icons
+                                                                                .circle,
+                                                                            color:
+                                                                                Colors.orange,
+                                                                            size: (2 + approDataTextSize) * 1.0)
+                                                                      ])
+                                                                : Wrap(
+                                                                    children: <
+                                                                        Widget>[
+                                                                        Text(AppLocalizations.of(context).stock +
+                                                                            ': '),
+                                                                        Icon(
+                                                                            Icons
+                                                                                .circle,
+                                                                            color:
+                                                                                Colors.red,
+                                                                            size: (2 + approDataTextSize) * 1.0)
+                                                                      ])
+                                                  ])),
+                                          approShowPrice == false ||
+                                                  basketChecked[index].artpri ==
+                                                      'x'
+                                              ? Container()
+                                              : SizedBox(
+                                                  height: 20,
+                                                  child: Row(children: <Widget>[
+                                                    Text(AppLocalizations.of(
+                                                                context)
+                                                            .price +
+                                                        ': '),
+                                                    Text(basketChecked[index]
+                                                                .artpri ==
+                                                            basketChecked[index]
+                                                                .artbes
+                                                        ? basketChecked[index]
+                                                                .artbes +
+                                                            ' ' +
+                                                            basketChecked[index]
+                                                                .artuni
+                                                        : basketChecked[index]
+                                                                .artpri +
+                                                            ' / ' +
+                                                            basketChecked[index]
+                                                                .artbes +
+                                                            ' ' +
+                                                            basketChecked[index]
+                                                                .artuni)
+                                                  ]))
+                                        ]),
+                                      )
                                     : Container();
                               }),
                           Divider(
@@ -2781,15 +2937,13 @@ class BasketDetailScreen extends StatelessWidget {
           default:
             if (snapshot.hasError) {
               Future.delayed(Duration(milliseconds: 200)).then((v) {
-                restoreShopConnexion(
-                    context, '2:Security');
+                restoreShopConnexion(context, '2:Security');
               });
               return Scaffold(
                   appBar: AppBar(),
                   backgroundColor: Colors.white,
                   body: Center(child: Container()));
-            }
-            else
+            } else
               return createListViewDetail(context, snapshot);
         }
       },
@@ -3364,34 +3518,39 @@ class _SearchScreen extends State<SearchScreen>
                 return Column(
                   children: <Widget>[
                     ListTile(
-                      title: Row(
-                          children:<Widget> [FadeInImage(
-                            imageErrorBuilder: (BuildContext context,
-                                Object exception, StackTrace stackTrace) {
-                              //print('Error Handler');
-                              return Container(
-                                width: 64.0,
-                                height: 64.0,
-                                child: Image.asset('images/nopicture.jpg'),
-                              );
-                            },
-                            placeholder: AssetImage('images/pixel.gif'),
-                            image: NetworkImage('https://' +
-                                approShop +
-                                '.catbuilder.info' +
-                                resultNode[index].nodimg),
-                            fit: BoxFit.contain,
-                            height: 64.0 * approThumbSizeRatio,
-                            width: 64.0 * approThumbSizeRatio,
-                          ),
-                            SizedBox(width: 10,),
-                      Expanded( child: Text(resultNode[index].noddes)),
-                            SizedBox(width: 10,),
-                            Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 16,
-                              color: Colors.grey,
-                            ),]),
+                      title: Row(children: <Widget>[
+                        FadeInImage(
+                          imageErrorBuilder: (BuildContext context,
+                              Object exception, StackTrace stackTrace) {
+                            //print('Error Handler');
+                            return Container(
+                              width: 64.0,
+                              height: 64.0,
+                              child: Image.asset('images/nopicture.jpg'),
+                            );
+                          },
+                          placeholder: AssetImage('images/pixel.gif'),
+                          image: NetworkImage('https://' +
+                              approShop +
+                              '.catbuilder.info' +
+                              resultNode[index].nodimg),
+                          fit: BoxFit.contain,
+                          height: 64.0 * approThumbSizeRatio,
+                          width: 64.0 * approThumbSizeRatio,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(child: Text(resultNode[index].noddes)),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
+                      ]),
                       onTap: () {
                         var route = MaterialPageRoute(
                           builder: (BuildContext context) =>
@@ -3401,7 +3560,7 @@ class _SearchScreen extends State<SearchScreen>
                             basurl: resultNode[index].nodurl,
                             onScreenHideButtonPressed:
                                 onScreenHideButtonPressed,
-                                synctoc: true,
+                            synctoc: true,
                           ),
                         );
                         Navigator.of(context).push(route);
@@ -3567,10 +3726,10 @@ class _ParameterScreen extends State<ParameterScreen> {
               approThumbSizeRatio = selectedValue;
               _themeProvider.setTheme(myTheme.copyWith(
                   textTheme: myTheme.textTheme.copyWith(
-                  subtitle1: myTheme.textTheme.subtitle1.copyWith(
-                  fontSize: approDataTextSize * 1.0,
-                  ))));
-              });
+                      subtitle1: myTheme.textTheme.subtitle1.copyWith(
+                fontSize: approDataTextSize * 1.0,
+              ))));
+            });
           }),
     );
   }
@@ -3663,7 +3822,8 @@ class GeneralDrawer extends StatelessWidget {
       await launchUrl(
         Uri.parse(url),
         webViewConfiguration: WebViewConfiguration(
-          enableJavaScript: true,),
+          enableJavaScript: true,
+        ),
       );
     } else {
       throw 'Could not launch $url';
@@ -3782,24 +3942,24 @@ class TouchSpin2 extends StatefulWidget {
 
   const TouchSpin2(
       {Key key,
-        this.value = 1.0,
-        this.onChanged,
-        this.min = 1.0,
-        this.max = 9999999.0,
-        this.step = 1.0,
-        this.iconSize = 24.0,
-        this.displayFormat,
-        this.subtractIcon = const Icon(Icons.remove),
-        this.addIcon = const Icon(Icons.add),
-        this.iconPadding = const EdgeInsets.all(4.0),
-        this.textStyle = const TextStyle(fontSize: 24),
-        this.iconActiveColor,
-        this.iconDisabledColor,
-        this.enabled = true,
-        this.scrollVisible = true,
-        this.showStockIcon = false,
-        this.artnumint = '',
-        this.leftPadding = 64})
+      this.value = 1.0,
+      this.onChanged,
+      this.min = 1.0,
+      this.max = 9999999.0,
+      this.step = 1.0,
+      this.iconSize = 24.0,
+      this.displayFormat,
+      this.subtractIcon = const Icon(Icons.remove),
+      this.addIcon = const Icon(Icons.add),
+      this.iconPadding = const EdgeInsets.all(4.0),
+      this.textStyle = const TextStyle(fontSize: 24),
+      this.iconActiveColor,
+      this.iconDisabledColor,
+      this.enabled = true,
+      this.scrollVisible = true,
+      this.showStockIcon = false,
+      this.artnumint = '',
+      this.leftPadding = 64})
       : super(key: key);
 
   @override
@@ -3814,18 +3974,18 @@ class _TouchSpinState2 extends State<TouchSpin2> {
   num _value;
   String _text;
   BasketDetail _basketDetail =
-  BasketDetail('', '', '', false, 1, '', '', '', []);
+      BasketDetail('', '', '', false, 1, '', '', '', []);
   bool _edit = false;
   bool _stock = false;
   bool get minusBtnDisabled =>
       _value <= widget.min ||
-          _value - widget.step < widget.min ||
-          !widget.enabled;
+      _value - widget.step < widget.min ||
+      !widget.enabled;
 
   bool get addBtnDisabled =>
       _value >= widget.max ||
-          _value + widget.step > widget.max ||
-          !widget.enabled;
+      _value + widget.step > widget.max ||
+      !widget.enabled;
 
   bool get _scrollVisible => widget.scrollVisible;
   bool get _showStockIcon => widget.showStockIcon;
@@ -3844,7 +4004,7 @@ class _TouchSpinState2 extends State<TouchSpin2> {
 
     if (_scrollVisible) {
       Future.delayed(Duration(milliseconds: 200)).then((v) {
-        if(this.mounted) {
+        if (this.mounted) {
           Scrollable.ensureVisible(context,
               alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
               duration: Duration(milliseconds: 200));
@@ -3865,75 +4025,75 @@ class _TouchSpinState2 extends State<TouchSpin2> {
               children: <Widget>[
                 _showStockIcon
                     ? ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: widget.leftPadding,
-                      maxWidth: widget.leftPadding,
-                    ),
-                    child: IconButton(
-                        icon: _stock
-                            ? Icon(Icons.expand_less_outlined,
-                            color: Colors.grey)
-                            : Icon(Feather.package),
-                        iconSize: 23.0,
-                        color: Colors.grey,
-                        onPressed: () async {
-                          if (!_stock) {
-                            await _checkStock(context);
-                            Future.delayed(Duration(milliseconds: 200))
-                                .then((v) {
-                              Scrollable.ensureVisible(
-                                  expansionKey.currentContext,
-                                  alignmentPolicy:
-                                  ScrollPositionAlignmentPolicy
-                                      .keepVisibleAtEnd,
-                                  duration: Duration(milliseconds: 200));
-                            });
-                          }
-                          if (_stock) {}
-                          setState(() {
-                            if (_edit) _edit = false;
-                            _stock = !_stock;
-                          });
-                        }))
+                        constraints: BoxConstraints(
+                          minWidth: widget.leftPadding,
+                          maxWidth: widget.leftPadding,
+                        ),
+                        child: IconButton(
+                            icon: _stock
+                                ? Icon(Icons.expand_less_outlined,
+                                    color: Colors.grey)
+                                : Icon(Feather.package),
+                            iconSize: 23.0,
+                            color: Colors.grey,
+                            onPressed: () async {
+                              if (!_stock) {
+                                await _checkStock(context);
+                                Future.delayed(Duration(milliseconds: 200))
+                                    .then((v) {
+                                  Scrollable.ensureVisible(
+                                      expansionKey.currentContext,
+                                      alignmentPolicy:
+                                          ScrollPositionAlignmentPolicy
+                                              .keepVisibleAtEnd,
+                                      duration: Duration(milliseconds: 200));
+                                });
+                              }
+                              if (_stock) {}
+                              setState(() {
+                                if (_edit) _edit = false;
+                                _stock = !_stock;
+                              });
+                            }))
                     : ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: widget.leftPadding,
-                    maxWidth: widget.leftPadding,
-                  ),
-                ),
+                        constraints: BoxConstraints(
+                          minWidth: widget.leftPadding,
+                          maxWidth: widget.leftPadding,
+                        ),
+                      ),
                 IconButton(
                   padding: widget.iconPadding,
                   iconSize: widget.iconSize,
                   color: minusBtnDisabled
                       ? widget.iconDisabledColor ??
-                      Theme.of(context).disabledColor
+                          Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                      Theme.of(context).textTheme.button.color,
+                          Theme.of(context).textTheme.button.color,
                   icon: widget.subtractIcon,
                   onPressed: minusBtnDisabled
                       ? null
                       : () async {
-                    if (_edit) {
-                      setState(() {
-                        _edit = !_edit;
-                      });
-                    }
+                          if (_edit) {
+                            setState(() {
+                              _edit = !_edit;
+                            });
+                          }
 
-                    num newVal = _value - widget.step;
-                    setState(() {
-                      _value = newVal;
-                    });
-                    if (_stock) {
-                      await _checkStock(context);
-                      setState(() {
-                        _stock = !_stock;
-                        _stock = !_stock;
-                      });
-                    }
-                    if (widget.onChanged != null)
-                      widget.onChanged(newVal);
-                    _storage.writeBasket(basketChecked);
-                  },
+                          num newVal = _value - widget.step;
+                          setState(() {
+                            _value = newVal;
+                          });
+                          if (_stock) {
+                            await _checkStock(context);
+                            setState(() {
+                              _stock = !_stock;
+                              _stock = !_stock;
+                            });
+                          }
+                          if (widget.onChanged != null)
+                            widget.onChanged(newVal);
+                          _storage.writeBasket(basketChecked);
+                        },
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(
@@ -3954,34 +4114,34 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                   iconSize: widget.iconSize,
                   color: addBtnDisabled
                       ? widget.iconDisabledColor ??
-                      Theme.of(context).disabledColor
+                          Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                      Theme.of(context).textTheme.button.color,
+                          Theme.of(context).textTheme.button.color,
                   icon: widget.addIcon,
                   onPressed: addBtnDisabled
                       ? null
                       : () async {
-                    if (_edit) {
-                      setState(() {
-                        _edit = !_edit;
-                      });
-                    }
-                    num newVal = _value + widget.step;
-                    setState(() {
-                      _value = newVal;
-                    });
-                    if (_stock) {
-                      await _checkStock(context);
-                      setState(() {
-                        _stock = !_stock;
-                        _stock = !_stock;
-                      });
-                    }
+                          if (_edit) {
+                            setState(() {
+                              _edit = !_edit;
+                            });
+                          }
+                          num newVal = _value + widget.step;
+                          setState(() {
+                            _value = newVal;
+                          });
+                          if (_stock) {
+                            await _checkStock(context);
+                            setState(() {
+                              _stock = !_stock;
+                              _stock = !_stock;
+                            });
+                          }
 
-                    if (widget.onChanged != null)
-                      widget.onChanged(newVal);
-                    _storage.writeBasket(basketChecked);
-                  },
+                          if (widget.onChanged != null)
+                            widget.onChanged(newVal);
+                          _storage.writeBasket(basketChecked);
+                        },
                 ),
                 IconButton(
                     icon: _edit
@@ -4010,116 +4170,312 @@ class _TouchSpinState2 extends State<TouchSpin2> {
               ]),
           _stock
               ? Row(children: <Widget>[
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: widget.leftPadding + 16,
-                maxWidth: widget.leftPadding + 16,
-              ),
-            ),
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(children: <Widget>[
-                    _basketDetail
-                        .artoul.indexOf('|') == -1 ?
-                    Text(AppLocalizations.of(
-                        context)
-                        .orderunit +
-                        ': ' +
-                        _basketDetail
-                            .artorduni):
-
-                    OrderUnitWidget(_basketDetail, true, _artnumint),
-                  ]),
-                  SizedBox(height: 4.0, width: 0.0),
-                  _basketDetail.artstofla == 'x'
-                      ? Container()
-                      : Row(children: <Widget>[
-                    _basketDetail.artstofla == ''
-                        ? _basketDetail.artsto == ''
-                        ? Text('')
-                        : Text(
-                        AppLocalizations.of(context).stock +
-                            ': ' +
-                            _basketDetail.artsto)
-                        : _basketDetail.artstofla == 'green'
-                        ? Wrap(children: <Widget>[
-                      Text(AppLocalizations.of(context)
-                          .stock +
-                          ': '),
-                      Icon(Icons.circle,
-                          color: Colors.green, size: (2 + approDataTextSize) * 1.0)
-                    ])
-                        : _basketDetail.artstofla == 'yellow'
-                        ? Wrap(children: <Widget>[
-                      Text(
-                          AppLocalizations.of(context)
-                              .stock +
-                              ': '),
-                      Icon(Icons.circle,
-                          color: Colors.orange,
-                          size: (2 + approDataTextSize) * 1.0)
-                    ])
-                        : Wrap(children: <Widget>[
-                      Text(
-                          AppLocalizations.of(context)
-                              .stock +
-                              ': '),
-                      Icon(Icons.circle,
-                          color: Colors.red, size: (2 + approDataTextSize) * 1.0)
-                    ])
-                  ]),
-                ]),
-          ])
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: widget.leftPadding + 16,
+                      maxWidth: widget.leftPadding + 16,
+                    ),
+                  ),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(children: <Widget>[
+                          _basketDetail.artoul.indexOf('|') == -1
+                              ? Text(AppLocalizations.of(context).orderunit +
+                                  ': ' +
+                                  _basketDetail.artorduni)
+                              : OrderUnitWidget(
+                                  _basketDetail, true, _artnumint),
+                        ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        _basketDetail.artstofla == 'x'
+                            ? Container()
+                            : Row(children: <Widget>[
+                                _basketDetail.artstofla == ''
+                                    ? _basketDetail.artsto == ''
+                                        ? Text('')
+                                        : Text(
+                                            AppLocalizations.of(context).stock +
+                                                ': ' +
+                                                _basketDetail.artsto)
+                                    : _basketDetail.artstofla == 'green'
+                                        ? Wrap(children: <Widget>[
+                                            Text(AppLocalizations.of(context)
+                                                    .stock +
+                                                ': '),
+                                            Icon(Icons.circle,
+                                                color: Colors.green,
+                                                size: (2 + approDataTextSize) *
+                                                    1.0)
+                                          ])
+                                        : _basketDetail.artstofla == 'yellow'
+                                            ? Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.orange,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                                            : Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.red,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                              ]),
+                      ]),
+                ])
               : Container(),
           _edit
               ? Row(children: <Widget>[
-            _showStockIcon
-                ? ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: widget.leftPadding + 16,
-                maxWidth: widget.leftPadding + 16,
-              ),
-            )
-                : ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: widget.leftPadding + 16,
-                maxWidth: widget.leftPadding + 16,
-              ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: 140,
-                maxWidth: 140,
-              ),
-              child: Container(
-                color: Theme.of(context).primaryColorDark,
-                child: VirtualKeyboard(
-                  height: 150,
-                  textColor: globals.menuActiveColor,
-                  type: VirtualKeyboardType.Numeric,
-                  onKeyPress: (key) {
-                    switch (key.action) {
-                      case VirtualKeyboardKeyAction.Backspace:
-                        if (_text.length == 0) return;
-                        _text = _text.substring(0, _text.length - 1);
-                        break;
-                      default:
-                        _text = _text + key.text;
-                    }
-                    setState(() {
-                      _text.length == 0
-                          ? _value = 1
-                          : _value = num.parse(_text);
-                    });
-                    if (widget.onChanged != null)
-                      widget.onChanged(_value);
-                    _storage.writeBasket(basketChecked);
-                  },
-                ),
-              ),
-            ),
-          ])
+                  _showStockIcon
+                      ? ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: widget.leftPadding + 16,
+                            maxWidth: widget.leftPadding + 16,
+                          ),
+                        )
+                      : ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: widget.leftPadding + 16,
+                            maxWidth: widget.leftPadding + 16,
+                          ),
+                        ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: 140,
+                      maxWidth: 140,
+                    ),
+                    child: Container(
+                      color: Theme.of(context).primaryColorDark,
+                      child: VirtualKeyboard(
+                        height: 150,
+                        textColor: globals.menuActiveColor,
+                        type: VirtualKeyboardType.Numeric,
+                        onKeyPress: (key) {
+                          switch (key.action) {
+                            case VirtualKeyboardKeyAction.Backspace:
+                              if (_text.length == 0) return;
+                              _text = _text.substring(0, _text.length - 1);
+                              break;
+                            default:
+                              _text = _text + key.text;
+                          }
+                          setState(() {
+                            _text.length == 0
+                                ? _value = 1
+                                : _value = num.parse(_text);
+                          });
+                          if (widget.onChanged != null)
+                            widget.onChanged(_value);
+                          _storage.writeBasket(basketChecked);
+                        },
+                      ),
+                    ),
+                  ),
+                ])
+              : Container(),
+        ]);
+  }
+}
+
+class TouchInfo extends StatefulWidget {
+  final double iconSize;
+  final NumberFormat displayFormat;
+  final EdgeInsetsGeometry iconPadding;
+  final TextStyle textStyle;
+  final Color iconActiveColor;
+  final Color iconDisabledColor;
+  final bool enabled;
+  final String artnumint;
+  final double leftPadding;
+  final String artpri;
+
+  const TouchInfo(
+      {Key key,
+      this.iconSize = 24.0,
+      this.displayFormat,
+      this.iconPadding = const EdgeInsets.all(4.0),
+      this.textStyle = const TextStyle(fontSize: 12.0),
+      this.iconActiveColor,
+      this.iconDisabledColor,
+      this.enabled = true,
+      this.artnumint = '',
+      this.leftPadding = 64,
+      this.artpri = ''})
+      : super(key: key);
+
+  @override
+  _TouchInfoState createState() => _TouchInfoState();
+}
+
+class _TouchInfoState extends State<TouchInfo> {
+  final GlobalKey expansionKey = GlobalKey();
+
+  num _value;
+  BasketDetail _basketDetail =
+      BasketDetail('', '', '', false, 1, '', '', '', []);
+  bool _stock = false;
+
+  String get _artnumint => widget.artnumint;
+  String get _text => widget.artpri;
+
+  Future _checkStock(context) async {
+    _basketDetail = await checkBasketItem(context, _artnumint, _value);
+    //print(_value);
+    //print(_basketDetail.artsto);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    /*
+   if (_scrollVisible) {
+      Future.delayed(Duration(milliseconds: 200)).then((v) {
+        if (this.mounted) {
+          Scrollable.ensureVisible(context,
+              alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+              duration: Duration(milliseconds: 200));
+        }
+      });
+    }
+   */
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        key: expansionKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox( width: widget.leftPadding),
+                IconButton(
+                            icon: _stock
+                                ? Icon(Icons.expand_less_outlined,
+                                    color: Colors.grey)
+                                : Image.asset(
+                              'images/pricetag.png',
+                              width: 16.0,
+                            ), /*Icons.expand_more_outlined*/
+                            iconSize: 23.0,
+                            color: Colors.grey,
+                            onPressed: () async {
+                              if (!_stock) {
+                                await _checkStock(context);
+                                Future.delayed(Duration(milliseconds: 200))
+                                    .then((v) {
+                                  Scrollable.ensureVisible(
+                                      expansionKey.currentContext,
+                                      alignmentPolicy:
+                                          ScrollPositionAlignmentPolicy
+                                              .keepVisibleAtEnd,
+                                      duration: Duration(milliseconds: 200));
+                                });
+                              }
+                              if (_stock) {}
+                              setState(() {
+                                _stock = !_stock;
+                              });
+                            }),
+                Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      _text == null ? '' : _text,
+                      style: widget.textStyle,
+                    ),
+                  ),
+
+              ]),
+          _stock
+              ? Row(children: <Widget>[
+                  SizedBox( width: widget.leftPadding + 12),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(children: <Widget>[
+                          _basketDetail.artoul.indexOf('|') == -1
+                              ? Text(AppLocalizations.of(context).orderunit +
+                                  ': ' +
+                                  _basketDetail.artorduni)
+                              : OrderUnitWidget(
+                                  _basketDetail, true, _artnumint),
+                        ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        _basketDetail.artstofla == 'x'
+                            ? Container()
+                            : Row(children: <Widget>[
+                                _basketDetail.artstofla == ''
+                                    ? _basketDetail.artsto == ''
+                                        ? Text('')
+                                        : Text(
+                                            AppLocalizations.of(context).stock +
+                                                ': ' +
+                                                _basketDetail.artsto)
+                                    : _basketDetail.artstofla == 'green'
+                                        ? Wrap(children: <Widget>[
+                                            Text(AppLocalizations.of(context)
+                                                    .stock +
+                                                ': '),
+                                            Icon(Icons.circle,
+                                                color: Colors.green,
+                                                size: (2 + approDataTextSize) *
+                                                    1.0)
+                                          ])
+                                        : _basketDetail.artstofla == 'yellow'
+                                            ? Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.orange,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                                            : Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.red,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                              ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        Row(children: <Widget>[
+                          Wrap(children: <Widget>[
+                            Text(AppLocalizations.of(context).price + ': '),
+                            Text(_basketDetail.artpri == _basketDetail.artbes
+                                ? _basketDetail.artbes +
+                                    ' ' +
+                                    _basketDetail.artuni
+                                : _basketDetail.artpri +
+                                    ' / ' +
+                                    _basketDetail.artbes +
+                                    ' ' +
+                                    _basketDetail.artuni)
+                          ])
+                        ]),
+                      ]),
+                ])
               : Container(),
         ]);
   }
@@ -4131,7 +4487,8 @@ class OrderUnitWidget extends StatefulWidget {
   final bool refresh;
   final String artnumint;
   @override
-  _OrderUnitWidgetState createState() => _OrderUnitWidgetState(basrow, refresh, artnumint);
+  _OrderUnitWidgetState createState() =>
+      _OrderUnitWidgetState(basrow, refresh, artnumint);
 }
 
 class _OrderUnitWidgetState extends State<OrderUnitWidget> {
@@ -4141,8 +4498,8 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
   var _selected = 0;
   String artnumint;
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
-
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   @override
   void initState() {
@@ -4152,66 +4509,63 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
           index: _selected,
           duration: Duration(milliseconds: 200),
           curve: Curves.easeInOutCubic);
-      });
+    });
   }
 
-
   Widget build(BuildContext context) {
-    return
-      Row( children: <Widget>[ Text(AppLocalizations.of(
-          context)
-          .orderunit +
-          ': '),
+    return Row(
+      children: <Widget>[
+        Text(AppLocalizations.of(context).orderunit + ': '),
         SizedBox(
           height: 40,
-          width:MediaQuery.of(context).size.width - 80 - (66.0  * max(approThumbSizeRatio,1)),
+          width: MediaQuery.of(context).size.width -
+              80 -
+              (66.0 * max(approThumbSizeRatio, 1)),
           child: _buildChips(),
         ),
       ],
-      );
-
+    );
   }
 
   Widget _buildChips() {
     List<Widget> chips = [];
     var myTab = basrow.artoul.split('|');
     int _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
-    if(_idx > -1) basrow.artorduni = basketChecked[_idx].artorduni;
-    if(basrow.artorduni == '' && myTab.length > 0) basrow.artorduni = myTab[0];
+    if (_idx > -1) basrow.artorduni = basketChecked[_idx].artorduni;
+    if (basrow.artorduni == '' && myTab.length > 0) basrow.artorduni = myTab[0];
     for (var i = 0; i < myTab.length; i++) {
       ChoiceChip choiceChip = ChoiceChip(
         visualDensity: VisualDensity.compact,
-        selected: myTab[i] == basrow.artorduni ,
+        selected: myTab[i] == basrow.artorduni,
         label: Text(myTab[i]),
-        labelStyle: TextStyle(fontSize: approDataTextSize * 1.0, color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black),
+        labelStyle: TextStyle(
+            fontSize: approDataTextSize * 1.0,
+            color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black),
         avatar: null,
         elevation: 1,
         pressElevation: 3,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         selectedColor: myTheme.toggleableActiveColor,
         onSelected: (bool selected) {
-          setState(()  {
-            int _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
-            if(_idx > -1) basketChecked[_idx].artorduni = myTab[i];
-            if(refresh) checkBasket(context, _idx);
+          setState(() {
+            int _idx =
+                basketChecked.indexWhere((e) => e.artnumint == artnumint);
+            if (_idx > -1) basketChecked[_idx].artorduni = myTab[i];
+            if (refresh) checkBasket(context, _idx);
             if (selected) {
               basrow.artorduni = myTab[i];
               _selected = i;
             }
-          }
-          );
+          });
         },
       );
-      if(choiceChip.selected) _selected = i;
+      if (choiceChip.selected) _selected = i;
       chips.add(Padding(
-          padding: EdgeInsets.symmetric(horizontal: 1),
-          child: choiceChip
-      ));
+          padding: EdgeInsets.symmetric(horizontal: 1), child: choiceChip));
     }
-    return  ScrollablePositionedList.builder(
+    return ScrollablePositionedList.builder(
       itemCount: chips.length,
-      scrollDirection : Axis.horizontal,
+      scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) => chips[index],
       itemScrollController: itemScrollController,
       itemPositionsListener: itemPositionsListener,
@@ -4225,70 +4579,57 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
   }
 }
 
-Future<void> syncNode(e, n, c, f, l,a) async {
+Future<void> syncNode(e, n, c, f, l, a) async {
   List<CatLevel> e2 = [];
   var _node = '', _noddes = '';
   var i = 0;
-  _node =  getItemToken(  currentNodePath,'|', l) ;
-  if(_node != '' ) {
-    if(l == 1) {
+  _node = getItemToken(currentNodePath, '|', l);
+  if (_node != '') {
+    if (l == 1) {
       i = e.indexWhere((el) => el.nodnum == '@' + _node);
       if (i > -1) {
-        e2 = await getTree(
-            c, _node);
+        e2 = await getTree(c, _node);
         if (i > -1) {
           _noddes = e[i].noddes;
           n += '/' + _node;
           var route = MaterialPageRoute(
             settings: RouteSettings(name: n),
-            builder: (BuildContext context) =>
-                ChapterScreen(
-                    e2,
-                    _noddes,
-                    f),
+            builder: (BuildContext context) => ChapterScreen(e2, _noddes, f),
           );
           Navigator.of(c).push(route);
-          syncNode(e2, n, c, f, l + 1,a);
+          syncNode(e2, n, c, f, l + 1, a);
           return;
         }
       } else {
-        syncNode(e, n, c, f, l + 1,a);
+        syncNode(e, n, c, f, l + 1, a);
         return;
-
       }
     }
     i = e.indexWhere((el) => el.nodnum == _node);
 
-    if( i > -1 ) {
-      n += '/'+_node;
+    if (i > -1) {
+      n += '/' + _node;
       _noddes = e[i].noddes;
       if (e[i].nodtyp == 2) {
         var route = MaterialPageRoute(
           settings: RouteSettings(name: n),
-          builder: (BuildContext context) =>
-              FavoriteDetailScreen(
-                basdes: e[i].noddes,
-                basval: e[i].nodnum,
-                basurl: e[i].nodurl,
-                onScreenHideButtonPressed:
-                f,
-                syncnum: a,
-              ),
+          builder: (BuildContext context) => FavoriteDetailScreen(
+            basdes: e[i].noddes,
+            basval: e[i].nodnum,
+            basurl: e[i].nodurl,
+            onScreenHideButtonPressed: f,
+            syncnum: a,
+          ),
         );
         Navigator.of(c).push(route);
       } else {
-        e2 = await getTreeLevel(
-            e[i].xmlnod);
+        e2 = await getTreeLevel(e[i].xmlnod);
         var route = MaterialPageRoute(
           settings: RouteSettings(name: n),
-          builder: (BuildContext context) =>
-              ChapterScreen(
-                  e2,
-                  _noddes,
-                  f),
+          builder: (BuildContext context) => ChapterScreen(e2, _noddes, f),
         );
         Navigator.of(c).push(route);
-        syncNode(e2, n, c, f, l+1,a);
+        syncNode(e2, n, c, f, l + 1, a);
       }
     }
   }

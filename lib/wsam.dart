@@ -673,6 +673,10 @@ Future<List<CatNode>> getSearch() async {
   return resultNode;
 }
 
+Future<List<InfoNews>> getNews() async {
+  return infoNews;
+}
+
 Future<List<CatLevel>> searchItem(val, repcod, context) async {
   if (val == '') {
     return [];
@@ -799,6 +803,15 @@ Future<List<BasketDetail>> getProductItem(n, String u, Product p) async {
               ? []
               : e.findElements('artpdf').map<String>((el) => el.text).toList()))
       .toList();
+  var myVal = '';
+  final items = document.findAllElements('item').toList();
+  for (var i = 0; i < data.length; i++) {
+    myVal = items[i].findElements('artpri').single.text;
+    data[i].artpri = myVal == ''
+        ? '0.0'
+        : NumberFormat("##0.00#").format(double.parse(myVal));
+
+  }
   return data;
 }
 
