@@ -1219,6 +1219,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                       icon: Image.asset(
                         'images/ft.png',
                         width: 24.0,
+                        height: 24.0,
                       ),
                       padding: EdgeInsets.zero,
                       onPressed: () {
