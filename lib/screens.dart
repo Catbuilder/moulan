@@ -1384,7 +1384,6 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                   ListTile(
                       title: Row(children: <Widget>[
                     TouchInfo(
-                      scrollVisible: true,
                       //onScreenHideButtonPressed: onScreenHideButtonPressed,
                       //                         displayFormat: ,
                       textStyle: TextStyle(fontSize: 12),
@@ -1392,7 +1391,6 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                       iconActiveColor: Colors.red,
                       iconDisabledColor: Colors.grey,
                       iconPadding: EdgeInsets.all(2),
-                      showStockIcon: approShowStockIcon,
                       artnumint: values[index].artnumint,
                       artpri: values[index].artpri,
                       enabled: true,
@@ -4298,8 +4296,6 @@ class TouchInfo extends StatefulWidget {
   final Color iconActiveColor;
   final Color iconDisabledColor;
   final bool enabled;
-  final bool scrollVisible;
-  final bool showStockIcon;
   final String artnumint;
   final double leftPadding;
   final String artpri;
@@ -4313,8 +4309,6 @@ class TouchInfo extends StatefulWidget {
       this.iconActiveColor,
       this.iconDisabledColor,
       this.enabled = true,
-      this.scrollVisible = true,
-      this.showStockIcon = false,
       this.artnumint = '',
       this.leftPadding = 64,
       this.artpri = ''})
@@ -4332,8 +4326,6 @@ class _TouchInfoState extends State<TouchInfo> {
       BasketDetail('', '', '', false, 1, '', '', '', []);
   bool _stock = false;
 
-  bool get _scrollVisible => widget.scrollVisible;
-  bool get _showStockIcon => widget.showStockIcon;
   String get _artnumint => widget.artnumint;
   String get _text => widget.artpri;
 
