@@ -1382,21 +1382,23 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                     //         trailing: CheckedWidget(values[index]),
                   ),
                   ListTile(
-                      title: Row(children: <Widget>[
-                    TouchInfo(
-                      //onScreenHideButtonPressed: onScreenHideButtonPressed,
-                      //                         displayFormat: ,
-                      textStyle: TextStyle(fontSize: 12),
-                      iconSize: 24.0,
-                      iconActiveColor: Colors.red,
-                      iconDisabledColor: Colors.grey,
-                      iconPadding: EdgeInsets.all(2),
-                      artnumint: values[index].artnumint,
-                      artpri: values[index].artpri,
-                      enabled: true,
-                      leftPadding:  64.0 * approThumbSizeRatio,
+                    title: Row(
+                      children: <Widget>[
+                        TouchInfo(
+                          //onScreenHideButtonPressed: onScreenHideButtonPressed,
+                          //                         displayFormat: ,
+                          iconSize: 24.0,
+                          iconActiveColor: Colors.red,
+                          iconDisabledColor: Colors.grey,
+                          iconPadding: EdgeInsets.all(2),
+                          artnumint: values[index].artnumint,
+                          artpri: values[index].artpri,
+                          enabled: true,
+                          leftPadding: 64.0 * approThumbSizeRatio,
+                        ),
+                      ],
                     ),
-                  ],),),
+                  ),
                   ValueListenableBuilder(
                       valueListenable: globals.favoriteRefresh,
                       builder:
@@ -4292,7 +4294,6 @@ class TouchInfo extends StatefulWidget {
   final double iconSize;
   final NumberFormat displayFormat;
   final EdgeInsetsGeometry iconPadding;
-  final TextStyle textStyle;
   final Color iconActiveColor;
   final Color iconDisabledColor;
   final bool enabled;
@@ -4305,7 +4306,6 @@ class TouchInfo extends StatefulWidget {
       this.iconSize = 24.0,
       this.displayFormat,
       this.iconPadding = const EdgeInsets.all(4.0),
-      this.textStyle = const TextStyle(fontSize: 12.0),
       this.iconActiveColor,
       this.iconDisabledColor,
       this.enabled = true,
@@ -4362,47 +4362,45 @@ class _TouchInfoState extends State<TouchInfo> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox( width: widget.leftPadding),
+                SizedBox(width: widget.leftPadding),
                 IconButton(
-                            icon: _stock
-                                ? Icon(Icons.expand_less_outlined,
-                                    color: Colors.grey)
-                                : Image.asset(
-                              'images/pricetag.png',
-                              width: 16.0,
-                            ), /*Icons.expand_more_outlined*/
-                            iconSize: 23.0,
-                            color: Colors.grey,
-                            onPressed: () async {
-                              if (!_stock) {
-                                await _checkStock(context);
-                                Future.delayed(Duration(milliseconds: 200))
-                                    .then((v) {
-                                  Scrollable.ensureVisible(
-                                      expansionKey.currentContext,
-                                      alignmentPolicy:
-                                          ScrollPositionAlignmentPolicy
-                                              .keepVisibleAtEnd,
-                                      duration: Duration(milliseconds: 200));
-                                });
-                              }
-                              if (_stock) {}
-                              setState(() {
-                                _stock = !_stock;
-                              });
-                            }),
+                    icon: _stock
+                        ? Icon(Icons.expand_less_outlined, color: Colors.grey)
+                        : (approShowPrice
+                            ? Image.asset(
+                                'images/pricetag.png',
+                                width: 16.0,
+                              )
+                            : Icon(Feather.package,
+                                color: Colors.grey, size:16.0)),
+                    /*Icons.expand_more_outlined*/
+                    iconSize: 23.0,
+                    color: Colors.grey,
+                    onPressed: () async {
+                      if (!_stock) {
+                        await _checkStock(context);
+                        Future.delayed(Duration(milliseconds: 200)).then((v) {
+                          Scrollable.ensureVisible(expansionKey.currentContext,
+                              alignmentPolicy: ScrollPositionAlignmentPolicy
+                                  .keepVisibleAtEnd,
+                              duration: Duration(milliseconds: 200));
+                        });
+                      }
+                      if (_stock) {}
+                      setState(() {
+                        _stock = !_stock;
+                      });
+                    }),
                 Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      _text == null ? '' : _text,
-                      style: widget.textStyle,
-                    ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _text == null ? '' : _text,
                   ),
-
+                ),
               ]),
           _stock
               ? Row(children: <Widget>[
-                  SizedBox( width: widget.leftPadding + 12),
+                  SizedBox(width: widget.leftPadding + 12),
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -4460,20 +4458,24 @@ class _TouchInfoState extends State<TouchInfo> {
                                               ])
                               ]),
                         SizedBox(height: 4.0, width: 0.0),
-                        Row(children: <Widget>[
-                          Wrap(children: <Widget>[
-                            Text(AppLocalizations.of(context).price + ': '),
-                            Text(_basketDetail.artpri == _basketDetail.artbes
-                                ? _basketDetail.artbes +
-                                    ' ' +
-                                    _basketDetail.artuni
-                                : _basketDetail.artpri +
-                                    ' / ' +
-                                    _basketDetail.artbes +
-                                    ' ' +
-                                    _basketDetail.artuni)
-                          ])
-                        ]),
+                        approShowPrice
+                            ? Row(children: <Widget>[
+                                Wrap(children: <Widget>[
+                                  Text(AppLocalizations.of(context).price +
+                                      ': '),
+                                  Text(_basketDetail.artpri ==
+                                          _basketDetail.artbes
+                                      ? _basketDetail.artbes +
+                                          ' ' +
+                                          _basketDetail.artuni
+                                      : _basketDetail.artpri +
+                                          ' / ' +
+                                          _basketDetail.artbes +
+                                          ' ' +
+                                          _basketDetail.artuni)
+                                ])
+                              ])
+                            : Container(),
                       ]),
                 ])
               : Container(),
