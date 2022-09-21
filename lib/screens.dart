@@ -4370,10 +4370,10 @@ class _TouchInfoState extends State<TouchInfo> {
                         : (approShowPrice
                             ? Image.asset(
                                 'images/pricetag.png',
-                                width: 16.0,
+                                width: 18.0,
                               )
                             : Icon(Feather.package,
-                                color: Colors.grey, size:16.0)),
+                                color: Colors.grey, size:18.0)),
                     /*Icons.expand_more_outlined*/
                     iconSize: 23.0,
                     color: Colors.grey,
