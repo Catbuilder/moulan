@@ -1372,35 +1372,33 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                     : Container(),
                                 */
                             ]),
-                                SizedBox(
-                                  width: 200,
-                                  child: TouchInfo(
-                                    scrollVisible: true,
-                                    //onScreenHideButtonPressed: onScreenHideButtonPressed,
-                                    //                         displayFormat: ,
-                                    textStyle: TextStyle(fontSize: 12),
-                                    iconSize: 24.0,
-                                    iconActiveColor: Colors.red,
-                                    iconDisabledColor: Colors.grey,
-                                    iconPadding: EdgeInsets.all(2),
-                                    showStockIcon: approShowStockIcon,
-                                    artnumint: values[index].artnumint,
-                                    artpri: values[index].artpri,
-                                    enabled: true,
-                                    leftPadding: 24,
-                                  ),
-                                ),
                           ])),
                       SizedBox(
                         width: 10,
                       ),
                       CheckedWidget(values[index]),
-
-
                     ]),
                     //onTa]),p: () {},
                     //         trailing: CheckedWidget(values[index]),
                   ),
+                  ListTile(
+                      title: Row(children: <Widget>[
+                    TouchInfo(
+                      scrollVisible: true,
+                      //onScreenHideButtonPressed: onScreenHideButtonPressed,
+                      //                         displayFormat: ,
+                      textStyle: TextStyle(fontSize: 12),
+                      iconSize: 24.0,
+                      iconActiveColor: Colors.red,
+                      iconDisabledColor: Colors.grey,
+                      iconPadding: EdgeInsets.all(2),
+                      showStockIcon: approShowStockIcon,
+                      artnumint: values[index].artnumint,
+                      artpri: values[index].artpri,
+                      enabled: true,
+                      leftPadding:  64.0 * approThumbSizeRatio,
+                    ),
+                  ],),),
                   ValueListenableBuilder(
                       valueListenable: globals.favoriteRefresh,
                       builder:
@@ -1452,6 +1450,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                           globals.basketCounter.value - 1;
                                     },
                                     enabled: true,
+                                    leftPadding: 64.0 * approThumbSizeRatio,
                                   ),
                                 ),
                               )
@@ -4307,18 +4306,18 @@ class TouchInfo extends StatefulWidget {
 
   const TouchInfo(
       {Key key,
-        this.iconSize = 24.0,
-        this.displayFormat,
-        this.iconPadding = const EdgeInsets.all(4.0),
-        this.textStyle = const TextStyle(fontSize: 12.0),
-        this.iconActiveColor,
-        this.iconDisabledColor,
-        this.enabled = true,
-        this.scrollVisible = true,
-        this.showStockIcon = false,
-        this.artnumint = '',
-        this.leftPadding = 64,
-        this.artpri = ''})
+      this.iconSize = 24.0,
+      this.displayFormat,
+      this.iconPadding = const EdgeInsets.all(4.0),
+      this.textStyle = const TextStyle(fontSize: 12.0),
+      this.iconActiveColor,
+      this.iconDisabledColor,
+      this.enabled = true,
+      this.scrollVisible = true,
+      this.showStockIcon = false,
+      this.artnumint = '',
+      this.leftPadding = 64,
+      this.artpri = ''})
       : super(key: key);
 
   @override
@@ -4328,11 +4327,9 @@ class TouchInfo extends StatefulWidget {
 class _TouchInfoState extends State<TouchInfo> {
   final GlobalKey expansionKey = GlobalKey();
 
-  var _storage = new BasketStorage();
-
   num _value;
   BasketDetail _basketDetail =
-  BasketDetail('', '', '', false, 1, '', '', '', []);
+      BasketDetail('', '', '', false, 1, '', '', '', []);
   bool _stock = false;
 
   bool get _scrollVisible => widget.scrollVisible;
@@ -4350,7 +4347,7 @@ class _TouchInfoState extends State<TouchInfo> {
   void initState() {
     super.initState();
 
-   /*
+    /*
    if (_scrollVisible) {
       Future.delayed(Duration(milliseconds: 200)).then((v) {
         if (this.mounted) {
@@ -4373,122 +4370,117 @@ class _TouchInfoState extends State<TouchInfo> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                _showStockIcon
-                    ? ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: widget.leftPadding,
-                      maxWidth: widget.leftPadding,
-                    ),
-                    child: IconButton(
-                        icon: _stock
-                            ? Icon(Icons.expand_less_outlined,
-                            color: Colors.grey)
-                            : Icon(Icons.price_check_outlined),
-                        iconSize: 23.0,
-                        color: Colors.grey,
-                        onPressed: () async {
-                          if (!_stock) {
-                            await _checkStock(context);
-                            Future.delayed(Duration(milliseconds: 200))
-                                .then((v) {
-                              Scrollable.ensureVisible(
-                                  expansionKey.currentContext,
-                                  alignmentPolicy:
-                                  ScrollPositionAlignmentPolicy
-                                      .keepVisibleAtEnd,
-                                  duration: Duration(milliseconds: 200));
-                            });
-                          }
-                          if (_stock) {}
-                          setState(() {
-                            _stock = !_stock;
-                          });
-                        }))
-                    : ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: widget.leftPadding,
-                    maxWidth: widget.leftPadding,
-                  ),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 40,
-                  ),
-                  child: Align(
+                SizedBox( width: widget.leftPadding),
+                IconButton(
+                            icon: _stock
+                                ? Icon(Icons.expand_less_outlined,
+                                    color: Colors.grey)
+                                : Icon(Icons.expand_more_outlined),
+                            iconSize: 23.0,
+                            color: Colors.grey,
+                            onPressed: () async {
+                              if (!_stock) {
+                                await _checkStock(context);
+                                Future.delayed(Duration(milliseconds: 200))
+                                    .then((v) {
+                                  Scrollable.ensureVisible(
+                                      expansionKey.currentContext,
+                                      alignmentPolicy:
+                                          ScrollPositionAlignmentPolicy
+                                              .keepVisibleAtEnd,
+                                      duration: Duration(milliseconds: 200));
+                                });
+                              }
+                              if (_stock) {}
+                              setState(() {
+                                _stock = !_stock;
+                              });
+                            }),
+                Align(
                     alignment: Alignment.center,
                     child: Text(
-                           _text == null ? '' : _text,
+                      _text == null ? '' : _text,
                       style: widget.textStyle,
                     ),
                   ),
-                ),
+
               ]),
           _stock
               ? Row(children: <Widget>[
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: widget.leftPadding + 16,
-                maxWidth: widget.leftPadding + 16,
-              ),
-            ),
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(children: <Widget>[
-                    _basketDetail.artoul.indexOf('|') == -1
-                        ? Text(AppLocalizations.of(context).orderunit +
-                        ': ' +
-                        _basketDetail.artorduni)
-                        : OrderUnitWidget(
-                        _basketDetail, true, _artnumint),
-                  ]),
-                  SizedBox(height: 4.0, width: 0.0),
-                  _basketDetail.artstofla == 'x'
-                      ? Container()
-                      : Row(children: <Widget>[
-                    _basketDetail.artstofla == ''
-                        ? _basketDetail.artsto == ''
-                        ? Text('')
-                        : Text(
-                        AppLocalizations.of(context).stock +
-                            ': ' +
-                            _basketDetail.artsto)
-                        : _basketDetail.artstofla == 'green'
-                        ? Wrap(children: <Widget>[
-                      Text(AppLocalizations.of(context)
-                          .stock +
-                          ': '),
-                      Icon(Icons.circle,
-                          color: Colors.green,
-                          size: (2 + approDataTextSize) *
-                              1.0)
-                    ])
-                        : _basketDetail.artstofla == 'yellow'
-                        ? Wrap(children: <Widget>[
-                      Text(
-                          AppLocalizations.of(context)
-                              .stock +
-                              ': '),
-                      Icon(Icons.circle,
-                          color: Colors.orange,
-                          size: (2 +
-                              approDataTextSize) *
-                              1.0)
-                    ])
-                        : Wrap(children: <Widget>[
-                      Text(
-                          AppLocalizations.of(context)
-                              .stock +
-                              ': '),
-                      Icon(Icons.circle,
-                          color: Colors.red,
-                          size: (2 +
-                              approDataTextSize) *
-                              1.0)
-                    ])
-                  ]),
-                ]),
-          ])
+                  SizedBox( width: widget.leftPadding + 12),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(children: <Widget>[
+                          _basketDetail.artoul.indexOf('|') == -1
+                              ? Text(AppLocalizations.of(context).orderunit +
+                                  ': ' +
+                                  _basketDetail.artorduni)
+                              : OrderUnitWidget(
+                                  _basketDetail, true, _artnumint),
+                        ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        _basketDetail.artstofla == 'x'
+                            ? Container()
+                            : Row(children: <Widget>[
+                                _basketDetail.artstofla == ''
+                                    ? _basketDetail.artsto == ''
+                                        ? Text('')
+                                        : Text(
+                                            AppLocalizations.of(context).stock +
+                                                ': ' +
+                                                _basketDetail.artsto)
+                                    : _basketDetail.artstofla == 'green'
+                                        ? Wrap(children: <Widget>[
+                                            Text(AppLocalizations.of(context)
+                                                    .stock +
+                                                ': '),
+                                            Icon(Icons.circle,
+                                                color: Colors.green,
+                                                size: (2 + approDataTextSize) *
+                                                    1.0)
+                                          ])
+                                        : _basketDetail.artstofla == 'yellow'
+                                            ? Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.orange,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                                            : Wrap(children: <Widget>[
+                                                Text(
+                                                    AppLocalizations.of(context)
+                                                            .stock +
+                                                        ': '),
+                                                Icon(Icons.circle,
+                                                    color: Colors.red,
+                                                    size: (2 +
+                                                            approDataTextSize) *
+                                                        1.0)
+                                              ])
+                              ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        Row(children: <Widget>[
+                          Wrap(children: <Widget>[
+                            Text(AppLocalizations.of(context).price + ': '),
+                            Text(_basketDetail.artpri == _basketDetail.artbes
+                                ? _basketDetail.artbes +
+                                    ' ' +
+                                    _basketDetail.artuni
+                                : _basketDetail.artpri +
+                                    ' / ' +
+                                    _basketDetail.artbes +
+                                    ' ' +
+                                    _basketDetail.artuni)
+                          ])
+                        ]),
+                      ]),
+                ])
               : Container(),
         ]);
   }
