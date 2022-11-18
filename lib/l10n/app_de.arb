@@ -55,5 +55,6 @@
   "order": "Bestellen",
   "keepcopy": "Behalte eine Kopie in meinen Favoriten",
   "sendorderok": "Ihr Warenkorb wurde gesendet",
-  "thumbsize": "Größe der Miniaturansichten"
+  "thumbsize": "Größe der Miniaturansichten",
+  "packing": "Verpackung"
 }

@@ -5,7 +5,7 @@ import 'package:xml/xml.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'globals.dart' as globals;
@@ -811,6 +811,7 @@ Future<List<BasketDetail>> getProductItem(n, String u, Product p) async {
         ? '0.0'
         : NumberFormat("##0.00#").format(double.parse(myVal));
 
+    data[i].artpac = items[i].findElements('artpac').single.text;
   }
   return data;
 }
@@ -1355,6 +1356,8 @@ class BasketDetail {
   List<String> nodimg = [];
   String artinf = '';
   List<String> artpdf = [];
+  String artpac = '';
+
 
   BasketDetail(this.artnum, this.artdes, this.nodnum, this.checked, this.artqty,
       this.artnumint, this.artimg, this.repcod, this.artpdf);
@@ -1369,7 +1372,8 @@ class BasketDetail {
         artimg = json['artimg'],
         repcod = json['repcod'],
         artorduni = json['artorduni'],
-        artoul = json['artoul'];
+        artoul = json['artoul'],
+        artpac = json['artpac'];
 
   Map<String, dynamic> toJson() => {
         'artnum': artnum,
@@ -1381,7 +1385,8 @@ class BasketDetail {
         'artimg': artimg,
         'repcod': repcod,
         'artorduni': artorduni,
-        'artoul': artoul
+        'artoul': artoul,
+      'artpac': artpac
   };
 
   String toText() =>

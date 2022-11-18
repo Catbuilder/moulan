@@ -55,5 +55,7 @@
   "order": "Send Order now","@order": {"description":  "Order"},
   "keepcopy": "Keep a copy in my favorites","@keepcopy": {"description":  "Keep a copy"},
   "sendorderok": "Your cart is sent", "@sendorderok": {"description": "Your cart is sent"},
-  "thumbsize": "Thumbnails size","@thumbsize":  {"description": "Thumbnails size"}
+  "thumbsize": "Thumbnails size","@thumbsize":  {"description": "Thumbnails size"},
+  "packing": "Packing","@packing":  {"description": "Packing"}
+
 }

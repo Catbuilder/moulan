@@ -55,5 +55,6 @@
   "order": "Commander",
   "keepcopy": "Garder une copie dans mes favoris",
   "sendorderok": "Votre panier est envoyé",
-  "thumbsize": "Taille des vignettes"
+  "thumbsize": "Taille des vignettes",
+  "packing": "Colisage"
 }

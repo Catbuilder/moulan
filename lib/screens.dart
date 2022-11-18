@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:math';
 //import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:badges/badges.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -1394,6 +1394,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                           iconPadding: EdgeInsets.all(2),
                           artnumint: values[index].artnumint,
                           artpri: values[index].artpri,
+                          artpac: values[index].artpac,
                           enabled: true,
                           leftPadding: 64.0 * approThumbSizeRatio,
                         ),
@@ -4301,6 +4302,7 @@ class TouchInfo extends StatefulWidget {
   final String artnumint;
   final double leftPadding;
   final String artpri;
+  final String artpac;
 
   const TouchInfo(
       {Key key,
@@ -4312,7 +4314,7 @@ class TouchInfo extends StatefulWidget {
       this.enabled = true,
       this.artnumint = '',
       this.leftPadding = 64,
-      this.artpri = ''})
+      this.artpri = '', this.artpac = ''})
       : super(key: key);
 
   @override
@@ -4329,6 +4331,7 @@ class _TouchInfoState extends State<TouchInfo> {
 
   String get _artnumint => widget.artnumint;
   String get _text => widget.artpri;
+  String get _artpac => widget.artpac;
 
   Future _checkStock(context) async {
     _basketDetail = await checkBasketItem(context, _artnumint, _value);
@@ -4458,6 +4461,14 @@ class _TouchInfoState extends State<TouchInfo> {
                                                         1.0)
                                               ])
                               ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        Row(children: <Widget>[
+                          Wrap(children: <Widget>[
+                            Text(AppLocalizations.of(context).packing +
+                                ': '),
+                            Text(_artpac)
+                          ])
+                        ]),
                         SizedBox(height: 4.0, width: 0.0),
                         approShowPrice
                             ? Row(children: <Widget>[
