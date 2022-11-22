@@ -56,5 +56,9 @@
   "keepcopy": "Behalte eine Kopie in meinen Favoriten",
   "sendorderok": "Ihr Warenkorb wurde gesendet",
   "thumbsize": "Größe der Miniaturansichten",
-  "packing": "Verpackung"
+  "packing": "Verpackung",
+  "confirmdeletetext": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+  "deleteok": "Element wurde gelöscht",
+  "deletenok": "Fehler, Element wurde nicht gelöscht",
+  "comment": "Anmerkung"
 }
