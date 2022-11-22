@@ -2771,7 +2771,7 @@ class _BasketScreen extends State<BasketScreen> {
                                                   runSpacing: 0,
                                                   children: <Widget>[
                                                     SizedBox(
-                                                        height: 32,
+                                                        //height: 32,
                                                         child: Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -2867,6 +2867,14 @@ class _BasketScreen extends State<BasketScreen> {
                                                                                   Icon(Icons.circle, color: Colors.red, size: (2 + approDataTextSize) * 1.0)
                                                                                 ])
                                                                 ])),
+                                                    Row(children: <Widget>[
+                                                      Wrap(children: <Widget>[
+                                                        Text(AppLocalizations.of(context).packing + ': '),
+                                                        Text(basketChecked[index]
+                                                            .artpac)
+                                                      ])
+                                                    ]),
+                                                    SizedBox(height: 4.0, width: 0.0),
                                                     approShowPrice == false ||
                                                             basketChecked[index]
                                                                     .artpri ==
