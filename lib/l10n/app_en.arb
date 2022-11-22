@@ -55,5 +55,11 @@
   "order": "Send Order now","@order": {"description":  "Order"},
   "keepcopy": "Keep a copy in my favorites","@keepcopy": {"description":  "Keep a copy"},
   "sendorderok": "Your cart is sent", "@sendorderok": {"description": "Your cart is sent"},
-  "thumbsize": "Thumbnails size","@thumbsize":  {"description": "Thumbnails size"}
+  "thumbsize": "Thumbnails size","@thumbsize":  {"description": "Thumbnails size"},
+  "packing": "Packing","@packing":  {"description": "Packing"},
+  "confirmdeletetext": "Are you sure you want to delete this item?", "@confirmdeletetext": {"description": "Confirm delete text"},
+  "deleteok": "Item is deleted", "@deleteok": {"description": "Item is deleted"},
+  "deletenok": "Error, item is not deleted", "@deletenok": {"description": "Item is not deleted"},
+  "comment": "Comment", "@comment": {"comment": "Comment"}
+
 }

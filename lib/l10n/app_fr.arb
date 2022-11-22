@@ -55,5 +55,11 @@
   "order": "Commander",
   "keepcopy": "Garder une copie dans mes favoris",
   "sendorderok": "Votre panier est envoyé",
-  "thumbsize": "Taille des vignettes"
+  "thumbsize": "Taille des vignettes",
+  "packing": "Colisage",
+  "confirmdeletetext": "Etes vous sûr de vouloir supprimer cet élément?",
+  "deleteok": "Elément supprimé",
+  "deletenok": "Erreur, l'élément n'est pas supprimé",
+  "comment": "Commentaire"
+
 }

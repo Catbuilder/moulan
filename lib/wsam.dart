@@ -5,7 +5,7 @@ import 'package:xml/xml.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'globals.dart' as globals;
@@ -25,12 +25,14 @@ var approDataTextSize = 14;
 var approThumbSizeRatio = 1.0;
 var approPDFSuffix = '_';
 var approShowPrice = true;
+var approDisableShowPrice = false;
 var approCanOrder = false;
 var approVersion = '';
 var approLogo = '';
 var approInitialIndex = 0;
 var approShowStockIcon = true;
 var approShowNews = false;
+var approShowComment = false;
 var approNewsTitle = '';
 PersistentTabController mainTab;
 List<String> approLanguages = ['fr'];
@@ -42,10 +44,9 @@ List<Basket> basketArchive = [];
 List<CatLevel> treeRoot = [];
 List<BasketDetail> basketScanned = [];
 List<InfoNews> infoNews = [];
-GlobalKey<ScaffoldState> approScaffoldKey = new GlobalKey<ScaffoldState>();
+GlobalKey<ScaffoldState> approScaffoldKey =  GlobalKey<ScaffoldState>();
 GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey=GlobalKey<ScaffoldMessengerState>();
 var currentNodePath = '';
-
 
 Future<ReturnFunctionCode> getCredential(us, ps, sh, context, to) async {
   var connectivityResult = await (Connectivity().checkConnectivity());
@@ -100,6 +101,12 @@ Future<ReturnFunctionCode> getCredential(us, ps, sh, context, to) async {
   approShowStockIcon = document.findAllElements('stockicon').length == 0
       ? false
       : (document.findAllElements('stockicon').first.text == 'true');
+  approDisableShowPrice = document.findAllElements('disableprice').length == 0
+      ? false
+      : (document.findAllElements('disableprice').first.text == '1');
+  approShowComment = document.findAllElements('showcomment').length == 0
+      ? false
+      : (document.findAllElements('showcomment').first.text == '1');
   approLogo = '';
   var tag = document.findAllElements('logo');
   if (tag.length > 0) approLogo = tag.first.text;
@@ -128,6 +135,8 @@ Future<ReturnFunctionCode> getCredential(us, ps, sh, context, to) async {
 
     approShowPrice = prefs.get(approShop + '-showprice');
     approShowPrice = approShowPrice == null ? true : approShowPrice;
+    if(approDisableShowPrice) approShowPrice = false;
+
     approLanguage = prefs.get(sh + '-language');
     approLanguage = approLanguage == null ? approLanguages[0] : approLanguage;
 
@@ -270,6 +279,16 @@ Future<String> getOrderInfo(context) async {
   var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
   var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
   var isTo = false;
+  var myLang = approLanguage;
+  switch (Localizations.localeOf(context).toString()) {
+    case 'fr':
+    case 'de':
+    case 'nl':
+    case 'en':
+      myLang = Localizations.localeOf(context).toString();
+      break;
+  }
+
   cXML += '<dbsync>';
   cXML += '<header>';
   cXML += '<sender><credential><client>appro724</client><identity>' +
@@ -281,7 +300,7 @@ Future<String> getOrderInfo(context) async {
   cXML += '</header>';
   cXML += '<request>';
   cXML += '<type>getorderinfo</type>';
-  cXML += '<language>' + approLanguage + '</language>';
+  cXML += '<language>' + myLang + '</language>';
   var myData = '';
   for (var b in basketChecked ?? []) {
     if (myData != '') myData += '||';
@@ -431,6 +450,67 @@ Future<bool> getFavorite(context) async {
   return true;
 }
 
+Future<bool> delFavorite(context,basnum) async {
+  var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
+  var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
+  cXML += '<dbsync>';
+  cXML += '<header>';
+  cXML += '<sender><credential><client>appro724</client><identity>' +
+      approUser +
+      '</identity><sharedsecret>' +
+      approCredential +
+      '</sharedsecret></credential></sender>';
+
+  cXML += '</header>';
+  cXML += '<request>';
+  cXML += '<type>delfavorit</type>';
+  cXML += '<par1>'+basnum+'</par1>';
+  cXML += '</request>';
+  cXML += '</dbsync>';
+  if (context != null) {
+    showCupertinoModalPopup(
+        context: context,
+        useRootNavigator: false,
+        builder: (context) => Container(
+            color: Colors.white.withOpacity(0.5),
+            child: Center(child: CircularProgressIndicator())));
+  }
+  http.Response response = await http.post(Uri.parse(myUrl), body: cXML);
+  var document = XmlDocument.parse(response.body);
+  if (document.findAllElements('result').first.text == '0:OK') {
+    await getFavorite(null);
+    if (context != null) Navigator.pop(context);
+
+    final snackBar = SnackBar(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      behavior: SnackBarBehavior.fixed,
+      content: Text(AppLocalizations.of(context).deleteok),
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).hide,
+        onPressed: () {},
+      ),
+    );
+    scaffoldMessengerKey.currentState.showSnackBar(snackBar);
+  } else {
+    if (context != null) Navigator.pop(context);
+    final snackBar = SnackBar(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      behavior: SnackBarBehavior.fixed,
+      content: Text(AppLocalizations.of(context).deletenok),
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).hide,
+        onPressed: () {},
+      ),
+    );
+    scaffoldMessengerKey.currentState.showSnackBar(snackBar);
+  }
+
+  //
+  //print(cXML);
+  //print(response.body);
+  return true;
+}
+
 Future<bool> sendBasket(context, t, n, u, com, sendcopy) async {
   var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
   var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
@@ -463,7 +543,9 @@ Future<bool> sendBasket(context, t, n, u, com, sendcopy) async {
     if (myData != '') myData += '||';
     myData += b.artnumint + '##' + b.artqty.toString();
     if( b.artoul != '' ) myData += '##' + b.artorduni;
+    if( b.artnumint == 'comment' ) myData += '##' + b.artdes;
   }
+
   cXML += '<data>' + myData + '</data>';
   cXML += '</request>';
   cXML += '</dbsync>';
@@ -479,16 +561,14 @@ Future<bool> sendBasket(context, t, n, u, com, sendcopy) async {
   if (t == 'print') return true;
   //print('sendFavorite');
   //print(response.body);
-
-  //print(response.body);
   var document = XmlDocument.parse(response.body);
   if (document.findAllElements('result').first.innerText == '0:OK') {
     var data = document.findAllElements('data').first.innerText;
     for (var i = basketChecked.length - 1; i >= 0; i--) {
       if (data.indexOf(basketChecked[i].artnumint + ':ok') > -1) {
         basketChecked.removeAt(i);
-        globals.basketCounter.value = globals.basketCounter.value - 1;
       }
+      globals.basketCounter.value = getCheckedCount();
       var _storage = new BasketStorage();
       _storage.writeBasket(basketChecked);
     }
@@ -811,6 +891,7 @@ Future<List<BasketDetail>> getProductItem(n, String u, Product p) async {
         ? '0.0'
         : NumberFormat("##0.00#").format(double.parse(myVal));
 
+    data[i].artpac = items[i].findElements('artpac').single.text;
   }
   return data;
 }
@@ -1237,6 +1318,15 @@ Future<void> getNodePath(nodnum, repcod, context) async {
   }
 }
 
+int getCheckedCount() {
+  int c = 0;
+  basketChecked.forEach((b) {
+    if(b.artnumint != 'comment') c++;
+  });
+  return c;
+}
+
+
 String getToken(s, t) {
   var tab = s.split('<' + t + '>');
   return tab.length > 1 ? tab[1].split('</' + t + '>')[0] : '';
@@ -1337,7 +1427,7 @@ class Basket {
 class BasketDetail {
   final String artnumint;
   final String artnum;
-  final String artdes;
+  String artdes;
   final String nodnum;
   final String artimg;
   String repcod;
@@ -1355,6 +1445,8 @@ class BasketDetail {
   List<String> nodimg = [];
   String artinf = '';
   List<String> artpdf = [];
+  String artpac = '';
+
 
   BasketDetail(this.artnum, this.artdes, this.nodnum, this.checked, this.artqty,
       this.artnumint, this.artimg, this.repcod, this.artpdf);
@@ -1369,7 +1461,8 @@ class BasketDetail {
         artimg = json['artimg'],
         repcod = json['repcod'],
         artorduni = json['artorduni'],
-        artoul = json['artoul'];
+        artoul = json['artoul'],
+        artpac = json['artpac'];
 
   Map<String, dynamic> toJson() => {
         'artnum': artnum,
@@ -1381,7 +1474,8 @@ class BasketDetail {
         'artimg': artimg,
         'repcod': repcod,
         'artorduni': artorduni,
-        'artoul': artoul
+        'artoul': artoul,
+        'artpac': artpac
   };
 
   String toText() =>

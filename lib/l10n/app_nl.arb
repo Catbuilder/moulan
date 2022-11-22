@@ -55,6 +55,11 @@
   "order": "Bestellen",
   "keepcopy": "Bewaar een kopie in mijn favorieten",
   "sendorderok": "Uw winkelwagen is verzonden",
-  "thumbsize": "Grootte van miniaturen"
+  "thumbsize": "Grootte van miniaturen",
+  "packing": "Inpakken",
+  "confirmdeletetext": "Bent, u zeker dat u dit item wilt verwijderen?",
+  "deleteok": "Item is verwijderd",
+  "deletenok": "Fout, item is niet verwijderd",
+  "comment": "Opmerking"
 
 }

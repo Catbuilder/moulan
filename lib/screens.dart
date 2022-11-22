@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:math';
 //import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:badges/badges.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +27,9 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 GlobalKey<_TreeScreen> approTreeScreen = GlobalKey<_TreeScreen>();
+
+ItemScrollController basketItemScrollController ;
+ItemPositionsListener basketItemPositionsListener;
 
 class MainTabState extends StatefulWidget {
   final BuildContext menuScreenContext;
@@ -350,121 +353,6 @@ class CustomNavBarWidget extends StatelessWidget {
     );
   }
 }
-
-/*
-class ChangeQtyScreen extends StatefulWidget {
-  ChangeQtyScreen(this.quantityValue, this.onScreenHideButtonPressed);
-  final int quantityValue;
-  final Function onScreenHideButtonPressed;
-  @override
-  _ChangeQtyScreen createState() =>
-      _ChangeQtyScreen(quantityValue, onScreenHideButtonPressed);
-}
-
-class _ChangeQtyScreen extends State<ChangeQtyScreen> {
-  _ChangeQtyScreen(this.quantityValue, this.onScreenHideButtonPressed);
-  final int quantityValue;
-  final Function onScreenHideButtonPressed;
-  final FocusNode _nodeNum = FocusNode();
-  final qtyController = TextEditingController();
-
-  void initState() {
-    super.initState();
-    qtyController.text = quantityValue.toString();
-    qtyController.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: quantityValue.toString().length,
-    );
-    Future.delayed(Duration(seconds: 0), () => onScreenHideButtonPressed());
-  }
-
-  void dispose() {
-    super.dispose();
-    Future.delayed(Duration(seconds: 0), () => onScreenHideButtonPressed());
-  }
-
-  void _onEditComplete() {
-//    globals.scanCounter.value = globals.scanCounter.value + 1;
-//    globals.scanCounter.value = globals.scanCounter.value - 1;
-    //onScreenHideButtonPressed();
-    Navigator.pop(context, int.parse(qtyController.text));
-  }
-
-  /// Creates the [KeyboardActionsConfig] to hook up the fields
-  /// and their focus nodes to our [FormKeyboardActions].
-  KeyboardActionsConfig _buildConfig(BuildContext context) {
-    return KeyboardActionsConfig(
-      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-      keyboardBarColor: myTheme.bottomAppBarColor,
-      nextFocus: false,
-      actions: [
-        KeyboardActionsItem(focusNode: _nodeNum, toolbarButtons: [
-          (node) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-              child: ElevatedButton(
-                child: Icon(
-                  Icons.done,
-                  color: Colors.white,
-                ),
-                onPressed: () => _onEditComplete(),
-              ),
-            );
-          },
-        ])
-      ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: Text('', style: TextStyle(fontSize: 18.0))),
-      body: KeyboardActions(
-        enable: true,
-        config: _buildConfig(context),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(height: 15.0),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: CupertinoTextField(
-//                  textInputAction: TextInputAction.done,
-                  prefix: Text(AppLocalizations.of(context).quantity),
-                  controller: qtyController,
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  clearButtonMode: OverlayVisibilityMode.editing,
-                  keyboardType: TextInputType.numberWithOptions(
-                      signed: false, decimal: false),
-                  focusNode: _nodeNum,
-                  autocorrect: false,
-                  autofocus: true,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        width: 0,
-                        color: CupertinoColors.inactiveGray,
-                      ),
-                    ),
-                  ),
-                  placeholder: AppLocalizations.of(context).reqval,
-                  onEditingComplete: () {
-                    _onEditComplete();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-*/
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen();
@@ -1010,38 +898,85 @@ class _FavoriteScreen extends State<FavoriteScreen> {
                 ? basketArchive.length
                 : basketFavorite.length,
             itemBuilder: (BuildContext context, int index) {
-              return Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(segmentedControlValue == 1
-                        ? basketArchive[index].basdes +
-                            '\n' +
-                            basketArchive[index].basdat
-                        : basketFavorite[index].basdes),
-                    onTap: () {
-                      var route = MaterialPageRoute(
-                        builder: (BuildContext context) => FavoriteDetailScreen(
-                          basdes: (segmentedControlValue == 1
-                                  ? basketArchive
-                                  : basketFavorite)[index]
-                              .basdes,
-                          basval: (segmentedControlValue == 1
-                                  ? basketArchive
-                                  : basketFavorite)[index]
-                              .basval,
-                          basurl: '',
-                          synctoc: true,
-                          onScreenHideButtonPressed: onScreenHideButtonPressed,
-                        ),
-                      );
-                      Navigator.of(context).push(route);
-                    },
-                    trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
+              return Dismissible(
+                confirmDismiss: (DismissDirection direction) async {
+                  return await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Text(
+                              AppLocalizations.of(context).confirmdeletetext),
+                          actions: <Widget>[
+                            TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child:
+                                    Text(AppLocalizations.of(context).delete)),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text(AppLocalizations.of(context).cancel),
+                            ),
+                          ],
+                        );
+                      });
+                },
+                onDismissed: (DismissDirection direction) async {
+                  if (segmentedControlValue == 0) {
+                    if (await delFavorite(
+                        context, basketFavorite[index].basnum)) {
+                      setState(() {});
+                    }
+                  }
+                },
+                secondaryBackground: Container(
+                  child: Center(
+                    child: Text(
+                      AppLocalizations.of(context).delete,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                  Divider(
-                    height: 1.0,
-                  ),
-                ],
+                  color: Colors.red,
+                ),
+                key: UniqueKey(),
+                direction: segmentedControlValue == 0
+                    ? DismissDirection.endToStart
+                    : DismissDirection.none,
+                background: Container(),
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(segmentedControlValue == 1
+                          ? basketArchive[index].basdes +
+                              '\n' +
+                              basketArchive[index].basdat
+                          : basketFavorite[index].basdes),
+                      onTap: () {
+                        var route = MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              FavoriteDetailScreen(
+                            basdes: (segmentedControlValue == 1
+                                    ? basketArchive
+                                    : basketFavorite)[index]
+                                .basdes,
+                            basval: (segmentedControlValue == 1
+                                    ? basketArchive
+                                    : basketFavorite)[index]
+                                .basval,
+                            basurl: '',
+                            synctoc: true,
+                            onScreenHideButtonPressed:
+                                onScreenHideButtonPressed,
+                          ),
+                        );
+                        Navigator.of(context).push(route);
+                      },
+                      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                    ),
+                    Divider(
+                      height: 1.0,
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -1394,6 +1329,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                           iconPadding: EdgeInsets.all(2),
                           artnumint: values[index].artnumint,
                           artpri: values[index].artpri,
+                          artpac: values[index].artpac,
                           enabled: true,
                           leftPadding: 64.0 * approThumbSizeRatio,
                         ),
@@ -2016,6 +1952,10 @@ class _ScanScreenState extends State<ScanScreen> {
     }
     basketScanned = [];
     globals.scanCounter.value = 0;
+    basketItemScrollController.scrollTo(
+        index: basketChecked.length - 1,
+        duration: Duration(seconds: 1),
+        curve: Curves.easeInOutCubic);
   }
 
   @override
@@ -2372,12 +2312,22 @@ class _BasketScreen extends State<BasketScreen> {
   final BuildContext menuScreenContext;
   final Function onScreenHideButtonPressed;
   final bool hideStatus;
-
   var _storage = new BasketStorage();
-
   @override
   void initState() {
+    basketItemScrollController = ItemScrollController();
+    basketItemPositionsListener = ItemPositionsListener.create();
     super.initState();
+  }
+  void dispose() {
+    super.dispose();
+  }
+
+  void _editItem(bd) async {
+    var route = MaterialPageRoute(
+      builder: (BuildContext context) => TextEditScreen(bd),
+    );
+    await Navigator.of(context).push(route);
   }
 
   Widget build(BuildContext context) {
@@ -2387,7 +2337,7 @@ class _BasketScreen extends State<BasketScreen> {
         floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context).send,
           mini: true,
-          onPressed: () {
+          onPressed: ()  {
             if (basketChecked.indexWhere((b) => b.status == 0) > -1) {
               final snackBar = SnackBar(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -2474,15 +2424,19 @@ class _BasketScreen extends State<BasketScreen> {
               builder: (BuildContext context, int value, Widget child) {
                 return Container(
                   padding: EdgeInsets.only(top: 10.0, bottom: 60),
-                  child: ListView.builder(
+                  child: ScrollablePositionedList.builder(
                     itemCount: basketChecked.length,
+                    initialScrollIndex: 0,
+                    scrollDirection: Axis.vertical,
+                    itemPositionsListener: basketItemPositionsListener,
+                    itemScrollController: basketItemScrollController,
                     itemBuilder: (BuildContext context, int index) {
                       return Dismissible(
                         onDismissed: (DismissDirection direction) {
                           setState(() {
                             basketChecked.removeAt(index);
                             _storage.writeBasket(basketChecked);
-                            globals.basketCounter.value = basketChecked.length;
+                            globals.basketCounter.value = getCheckedCount();
                           });
                         },
                         secondaryBackground: Container(
@@ -2497,98 +2451,135 @@ class _BasketScreen extends State<BasketScreen> {
                         key: UniqueKey(),
                         direction: DismissDirection.endToStart,
                         background: Container(),
-                        child: Column(children: <Widget>[
-                          ListTile(
-                              title: Row(
-                            children: <Widget>[
-                              GestureDetector(
-                                  onTap: () async {
-                                    var _product = Product('');
-                                    await getProductItem(
-                                        '',
-                                        basketChecked[index].repcod +
-                                            '/' +
-                                            basketChecked[index].nodnum +
-                                            '.asp',
-                                        _product);
+                        child: basketChecked[index].artnumint == 'comment'
+                            ? Column(children: <Widget>[
+                                ListTile(
+                                  title: Row(children: <Widget>[
+                                    IconButton(
+                                        onPressed: () {
+                                          _editItem(basketChecked[index]);
+                                        },
+                                        icon: Icon(Icons.edit)),
+                                    Expanded(
+                                      child: basketChecked[index].artdes == ''
+                                          ? Text(
+                                              AppLocalizations.of(context)
+                                                  .comment,
+                                              style:
+                                                  TextStyle(color: Colors.grey))
+                                          : Text(basketChecked[index].artdes),
+                                    ),
+                                  ]),
+                                ),
+                                Divider(
+                                  height: 6.0,
+                                ),
+                              ])
+                            : Column(children: <Widget>[
+                                ListTile(
+                                    title: Row(
+                                  children: <Widget>[
+                                    GestureDetector(
+                                        onTap: () async {
+                                          var _product = Product('');
+                                          await getProductItem(
+                                              '',
+                                              basketChecked[index].repcod +
+                                                  '/' +
+                                                  basketChecked[index].nodnum +
+                                                  '.asp',
+                                              _product);
 
-                                    var route = MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ItemDetailScreen(
-                                        itemSelected: basketChecked[index],
-                                        productSelected: _product,
-                                      ),
-                                    );
-                                    Navigator.of(context).push(route);
-                                  },
-                                  child: Stack(
-                                      //overflow: Overflow.visible,
-                                      clipBehavior: Clip.hardEdge,
-                                      children: <Widget>[
-                                        FadeInImage(
-                                          imageErrorBuilder:
-                                              (BuildContext context,
-                                                  Object exception,
-                                                  StackTrace stackTrace) {
-                                            //print('Error Handler');
-                                            return Container(
-                                              width: 64.0 * approThumbSizeRatio,
-                                              height:
-                                                  64.0 * approThumbSizeRatio,
-                                              child: Image.asset(
-                                                  'images/nopicture.jpg'),
-                                            );
-                                          },
-                                          placeholder:
-                                              AssetImage('images/pixel.gif'),
-                                          image: NetworkImage(basketChecked[
-                                                          index]
-                                                      .artimg
-                                                      .indexOf('http') >
-                                                  -1
-                                              ? basketChecked[index].artimg
-                                              : 'https://' +
-                                                  approShop +
-                                                  '.catbuilder.info/catalogs/thumbs/' +
-                                                  (basketChecked[index]
-                                                              .artimg ==
-                                                          ''
-                                                      ? basketChecked[index]
-                                                          .nodnum
-                                                      : basketChecked[index]
-                                                          .artimg) +
-                                                  '.jpg'),
-                                          fit: BoxFit.contain,
-                                          height: 64.0 * approThumbSizeRatio,
-                                          width: 64.0 * approThumbSizeRatio,
-                                        ),
-                                        Positioned(
-                                          left: 0,
-                                          top: 0,
-                                          child: ValueListenableBuilder(
-                                              valueListenable:
-                                                  globals.checkoutRefresh,
-                                              builder: (BuildContext context,
-                                                  bool value, Widget child) {
-                                                return (basketChecked[index]
-                                                            .status ==
-                                                        0
-                                                    ? Text('')
-                                                    : basketChecked[index]
-                                                                .status ==
-                                                            1
-                                                        ? Icon(
-                                                            Icons.check_box,
-                                                            color: Colors.green,
-                                                            size: 20.0,
-                                                          )
-                                                        : Icon(
-                                                            Icons.cancel,
-                                                            color: Colors.red,
-                                                            size: 20.0,
-                                                          ));
-                                              }),
-                                        ),
+                                          var route = MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                ItemDetailScreen(
+                                              itemSelected:
+                                                  basketChecked[index],
+                                              productSelected: _product,
+                                            ),
+                                          );
+                                          Navigator.of(context).push(route);
+                                        },
+                                        child: Stack(
+                                            //overflow: Overflow.visible,
+                                            clipBehavior: Clip.hardEdge,
+                                            children: <Widget>[
+                                              FadeInImage(
+                                                imageErrorBuilder:
+                                                    (BuildContext context,
+                                                        Object exception,
+                                                        StackTrace stackTrace) {
+                                                  //print('Error Handler');
+                                                  return Container(
+                                                    width: 64.0 *
+                                                        approThumbSizeRatio,
+                                                    height: 64.0 *
+                                                        approThumbSizeRatio,
+                                                    child: Image.asset(
+                                                        'images/nopicture.jpg'),
+                                                  );
+                                                },
+                                                placeholder: AssetImage(
+                                                    'images/pixel.gif'),
+                                                image: NetworkImage(basketChecked[
+                                                                index]
+                                                            .artimg
+                                                            .indexOf('http') >
+                                                        -1
+                                                    ? basketChecked[index]
+                                                        .artimg
+                                                    : 'https://' +
+                                                        approShop +
+                                                        '.catbuilder.info/catalogs/thumbs/' +
+                                                        (basketChecked[index]
+                                                                    .artimg ==
+                                                                ''
+                                                            ? basketChecked[
+                                                                    index]
+                                                                .nodnum
+                                                            : basketChecked[
+                                                                    index]
+                                                                .artimg) +
+                                                        '.jpg'),
+                                                fit: BoxFit.contain,
+                                                height:
+                                                    64.0 * approThumbSizeRatio,
+                                                width:
+                                                    64.0 * approThumbSizeRatio,
+                                              ),
+                                              Positioned(
+                                                left: 0,
+                                                top: 0,
+                                                child: ValueListenableBuilder(
+                                                    valueListenable:
+                                                        globals.checkoutRefresh,
+                                                    builder:
+                                                        (BuildContext context,
+                                                            bool value,
+                                                            Widget child) {
+                                                      return (basketChecked[
+                                                                      index]
+                                                                  .status ==
+                                                              0
+                                                          ? Text('')
+                                                          : basketChecked[index]
+                                                                      .status ==
+                                                                  1
+                                                              ? Icon(
+                                                                  Icons
+                                                                      .check_box,
+                                                                  color: Colors
+                                                                      .green,
+                                                                  size: 20.0,
+                                                                )
+                                                              : Icon(
+                                                                  Icons.cancel,
+                                                                  color: Colors
+                                                                      .red,
+                                                                  size: 20.0,
+                                                                ));
+                                                    }),
+                                              ),
 /*                                        PositionedDirectional(
                                             start: 50,
                                             bottom: -5,
@@ -2599,152 +2590,212 @@ class _BasketScreen extends State<BasketScreen> {
                                             )),
 
  */
-                                      ])),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                    Wrap(
-                                        spacing: 2,
-                                        runSpacing: 2,
-                                        children: <Widget>[
-                                          Text(basketChecked[index].artdes),
-                                          Text('')
-                                        ]),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        await getNodePath(
-                                            basketChecked[index].nodnum,
-                                            basketChecked[index].repcod,
-                                            context);
-                                        if (currentNodePath != '') {
-                                          mainTab.jumpToTab(1);
-                                          if (approTreeScreen.currentContext ==
-                                              null) {
-                                            await Future.delayed(
-                                                const Duration(
-                                                    milliseconds: 100),
-                                                () {});
-                                          }
-                                          final _context =
-                                              approTreeScreen.currentContext;
-                                          final _name = '/tree';
-                                          if (_context != null) {
-                                            Navigator.of(_context).popUntil(
-                                                ModalRoute.withName("/tree"));
-                                          }
-                                          await syncNode(
-                                              treeRoot,
-                                              _name,
-                                              _context,
-                                              onScreenHideButtonPressed,
-                                              1,
-                                              basketChecked[index].artnumint);
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          primary:
-                                              myTheme.toggleButtonsTheme.color,
-                                          visualDensity: VisualDensity.compact,
-                                          textStyle: TextStyle(
-                                              fontSize:
-                                                  approDataTextSize * 1.0)),
-                                      child: Text(
-                                        basketChecked[index].artnumint,
-                                      ),
-                                    )
-                                  ])),
-                            ],
-                          )),
-                          ListTile(
-                            title: SizedBox(
-                              width: 180,
-                              child: TouchSpin2(
-                                value: basketChecked[index].artqty,
-                                scrollVisible: false,
-                                min: 1,
-                                max: 10000,
-                                step: 1,
-                                //                         displayFormat: ,
-                                textStyle: TextStyle(fontSize: 16),
-                                iconSize: 24.0,
-                                leftPadding: MediaQuery.of(context).size.width -
-                                            (64.0 * approThumbSizeRatio) <
-                                        220
-                                    ? MediaQuery.of(context).size.width - 220
-                                    : 64.0 * approThumbSizeRatio,
-                                addIcon: Icon(Icons.add_circle_outline),
-                                subtractIcon: Icon(Icons.remove_circle_outline),
-                                iconActiveColor: Colors.red,
-                                iconDisabledColor: Colors.grey,
-                                iconPadding: EdgeInsets.all(2),
-                                onChanged: (val) {
-                                  basketChecked[index].artqty = val;
-                                },
-                                enabled: true,
-                              ),
-                            ),
-                          ),
-                          ValueListenableBuilder(
-                              valueListenable: globals.checkoutRefresh,
-                              builder: (BuildContext context, bool value,
-                                  Widget child) {
-                                return basketChecked[index].status == 1
-                                    ? ListTile(
-                                        leading: ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            minWidth: MediaQuery.of(context)
-                                                            .size
-                                                            .width -
-                                                        (59.0 *
-                                                            approThumbSizeRatio) <
-                                                    220
-                                                ? MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    220
-                                                : 59.0 * approThumbSizeRatio,
-                                            maxWidth: MediaQuery.of(context)
-                                                            .size
-                                                            .width -
-                                                        (59.0 *
-                                                            approThumbSizeRatio) <
-                                                    220
-                                                ? MediaQuery.of(context)
-                                                        .size
-                                                        .width -
-                                                    220
-                                                : 59.0 * approThumbSizeRatio,
-                                          ),
-                                        ),
-                                        title: Wrap(runSpacing: 0, children: <
-                                            Widget>[
-                                          SizedBox(
-                                              height: 32,
-                                              child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  children: <Widget>[
+                                            ])),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                          Wrap(
+                                              spacing: 2,
+                                              runSpacing: 2,
+                                              children: <Widget>[
+                                                Text(basketChecked[index]
+                                                    .artdes),
+                                                Text('')
+                                              ]),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              await getNodePath(
+                                                  basketChecked[index].nodnum,
+                                                  basketChecked[index].repcod,
+                                                  context);
+                                              if (currentNodePath != '') {
+                                                mainTab.jumpToTab(1);
+                                                if (approTreeScreen
+                                                        .currentContext ==
+                                                    null) {
+                                                  await Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {});
+                                                }
+                                                final _context = approTreeScreen
+                                                    .currentContext;
+                                                final _name = '/tree';
+                                                if (_context != null) {
+                                                  Navigator.of(_context)
+                                                      .popUntil(
+                                                          ModalRoute.withName(
+                                                              "/tree"));
+                                                }
+                                                await syncNode(
+                                                    treeRoot,
+                                                    _name,
+                                                    _context,
+                                                    onScreenHideButtonPressed,
+                                                    1,
                                                     basketChecked[index]
-                                                                .artoul
-                                                                .indexOf('|') ==
-                                                            -1
-                                                        ? Text(AppLocalizations
-                                                                    .of(context)
-                                                                .orderunit +
-                                                            ': ' +
-                                                            basketChecked[index]
-                                                                .artorduni)
-                                                        : OrderUnitWidget(
-                                                            basketChecked[
-                                                                index],
-                                                            true,
-                                                            basketChecked[index]
-                                                                .artnumint),
+                                                        .artnumint);
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                primary: myTheme
+                                                    .toggleButtonsTheme.color,
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                textStyle: TextStyle(
+                                                    fontSize:
+                                                        approDataTextSize *
+                                                            1.0)),
+                                            child: Text(
+                                              basketChecked[index].artnumint,
+                                            ),
+                                          ),
+
+                                        ])),
+                                  ],
+                                )),
+                                ListTile(
+                                  leading: approShowComment
+                                      ?  IconButton(
+                                          icon:
+                                              Icon(Icons.add_comment_outlined),
+                                          onPressed: () {
+                                            var _d = DateTime.now();
+                                            var secondsSinceEpoch =
+                                                _d.millisecondsSinceEpoch ~/ 10;
+                                            var _nb = BasketDetail(
+                                                '+' +
+                                                    secondsSinceEpoch
+                                                        .toString(),
+                                                '',
+                                                '',
+                                                true,
+                                                1,
+                                                'comment',
+                                                '',
+                                                '',
+                                                []);
+                                            _nb.status = 1;
+                                            setState(() {
+                                              basketChecked.insert(
+                                                  index + 1, _nb);
+                                              _storage
+                                                  .writeBasket(basketChecked);
+                                              //globals.basketCounter.value =
+                                              //    getCheckedCount() ;
+                                            });
+                                            basketItemScrollController.scrollTo(
+                                                index: index + 1,
+                                                duration:
+                                                    Duration(milliseconds: 500),
+                                                curve: Curves.easeInOutCubic);
+                                          },
+                                        )
+                                      : Text(''),
+                                  title: SizedBox(
+                                    width: 180,
+                                    child: TouchSpin2(
+                                      value: basketChecked[index].artqty,
+                                      scrollVisible: false,
+                                      min: 1,
+                                      max: 10000,
+                                      step: 1,
+                                      //                         displayFormat: ,
+                                      textStyle: TextStyle(fontSize: 16),
+                                      iconSize: 24.0,
+                                      leftPadding: max(
+                                          min(
+                                                  64.0 * approThumbSizeRatio,
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      220) -
+                                              64,
+                                          0),
+
+                                      addIcon: Icon(Icons.add_circle_outline),
+                                      subtractIcon:
+                                          Icon(Icons.remove_circle_outline),
+                                      iconActiveColor: Colors.red,
+                                      iconDisabledColor: Colors.grey,
+                                      iconPadding: EdgeInsets.all(2),
+                                      onChanged: (val) {
+                                        basketChecked[index].artqty = val;
+                                      },
+                                      enabled: true,
+                                    ),
+                                  ),
+                                ),
+                                ValueListenableBuilder(
+                                    valueListenable: globals.checkoutRefresh,
+                                    builder: (BuildContext context, bool value,
+                                        Widget child) {
+                                      return basketChecked[index].status == 1
+                                          ? ListTile(
+                                              leading: ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  minWidth: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width -
+                                                              (59.0 *
+                                                                  approThumbSizeRatio) <
+                                                          220
+                                                      ? MediaQuery.of(context)
+                                                              .size
+                                                              .width -
+                                                          220
+                                                      : 59.0 *
+                                                          approThumbSizeRatio,
+                                                  maxWidth: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width -
+                                                              (59.0 *
+                                                                  approThumbSizeRatio) <
+                                                          220
+                                                      ? MediaQuery.of(context)
+                                                              .size
+                                                              .width -
+                                                          220
+                                                      : 59.0 *
+                                                          approThumbSizeRatio,
+                                                ),
+                                              ),
+                                              title: Wrap(
+                                                  runSpacing: 0,
+                                                  children: <Widget>[
+                                                    SizedBox(
+                                                        height: 32,
+                                                        child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              basketChecked[index]
+                                                                          .artoul
+                                                                          .indexOf(
+                                                                              '|') ==
+                                                                      -1
+                                                                  ? Text(AppLocalizations.of(
+                                                                              context)
+                                                                          .orderunit +
+                                                                      ': ' +
+                                                                      basketChecked[
+                                                                              index]
+                                                                          .artorduni)
+                                                                  : OrderUnitWidget(
+                                                                      basketChecked[
+                                                                          index],
+                                                                      true,
+                                                                      basketChecked[
+                                                                              index]
+                                                                          .artnumint),
 
 /*                                                    IconButton(
                                                       padding: EdgeInsets.zero,
@@ -2778,109 +2829,87 @@ class _BasketScreen extends State<BasketScreen> {
                                                     )
 
  */
-                                                  ])),
-                                          basketChecked[index].artstofla == 'x'
-                                              ? Container()
-                                              : SizedBox(
-                                                  height: 20,
-                                                  child: Row(children: <Widget>[
+                                                            ])),
                                                     basketChecked[index]
                                                                 .artstofla ==
-                                                            ''
-                                                        ? basketChecked[index]
-                                                                    .artsto ==
-                                                                ''
-                                                            ? Text('')
-                                                            : Text(AppLocalizations.of(
-                                                                        context)
-                                                                    .stock +
-                                                                ': ' +
-                                                                basketChecked[
-                                                                        index]
-                                                                    .artsto)
-                                                        : basketChecked[index]
-                                                                    .artstofla ==
-                                                                'green'
-                                                            ? Wrap(
+                                                            'x'
+                                                        ? Container()
+                                                        : SizedBox(
+                                                            height: 20,
+                                                            child: Row(
                                                                 children: <
                                                                     Widget>[
-                                                                    Text(AppLocalizations.of(context)
-                                                                            .stock +
-                                                                        ': '),
-                                                                    Icon(
-                                                                        Icons
-                                                                            .circle,
-                                                                        color: Colors
-                                                                            .green,
-                                                                        size: (2 +
-                                                                                approDataTextSize) *
-                                                                            1.0)
-                                                                  ])
-                                                            : basketChecked[index]
-                                                                        .artstofla ==
-                                                                    'yellow'
-                                                                ? Wrap(
-                                                                    children: <
-                                                                        Widget>[
-                                                                        Text(AppLocalizations.of(context).stock +
-                                                                            ': '),
-                                                                        Icon(
-                                                                            Icons
-                                                                                .circle,
-                                                                            color:
-                                                                                Colors.orange,
-                                                                            size: (2 + approDataTextSize) * 1.0)
-                                                                      ])
-                                                                : Wrap(
-                                                                    children: <
-                                                                        Widget>[
-                                                                        Text(AppLocalizations.of(context).stock +
-                                                                            ': '),
-                                                                        Icon(
-                                                                            Icons
-                                                                                .circle,
-                                                                            color:
-                                                                                Colors.red,
-                                                                            size: (2 + approDataTextSize) * 1.0)
-                                                                      ])
-                                                  ])),
-                                          approShowPrice == false ||
-                                                  basketChecked[index].artpri ==
-                                                      'x'
-                                              ? Container()
-                                              : SizedBox(
-                                                  height: 20,
-                                                  child: Row(children: <Widget>[
-                                                    Text(AppLocalizations.of(
-                                                                context)
-                                                            .price +
-                                                        ': '),
-                                                    Text(basketChecked[index]
-                                                                .artpri ==
+                                                                  basketChecked[index]
+                                                                              .artstofla ==
+                                                                          ''
+                                                                      ? basketChecked[index].artsto ==
+                                                                              ''
+                                                                          ? Text(
+                                                                              '')
+                                                                          : Text(AppLocalizations.of(context).stock +
+                                                                              ': ' +
+                                                                              basketChecked[index]
+                                                                                  .artsto)
+                                                                      : basketChecked[index].artstofla ==
+                                                                              'green'
+                                                                          ? Wrap(children: <
+                                                                              Widget>[
+                                                                              Text(AppLocalizations.of(context).stock + ': '),
+                                                                              Icon(Icons.circle, color: Colors.green, size: (2 + approDataTextSize) * 1.0)
+                                                                            ])
+                                                                          : basketChecked[index].artstofla == 'yellow'
+                                                                              ? Wrap(children: <Widget>[
+                                                                                  Text(AppLocalizations.of(context).stock + ': '),
+                                                                                  Icon(Icons.circle, color: Colors.orange, size: (2 + approDataTextSize) * 1.0)
+                                                                                ])
+                                                                              : Wrap(children: <Widget>[
+                                                                                  Text(AppLocalizations.of(context).stock + ': '),
+                                                                                  Icon(Icons.circle, color: Colors.red, size: (2 + approDataTextSize) * 1.0)
+                                                                                ])
+                                                                ])),
+                                                    approShowPrice == false ||
                                                             basketChecked[index]
-                                                                .artbes
-                                                        ? basketChecked[index]
-                                                                .artbes +
-                                                            ' ' +
-                                                            basketChecked[index]
-                                                                .artuni
-                                                        : basketChecked[index]
-                                                                .artpri +
-                                                            ' / ' +
-                                                            basketChecked[index]
-                                                                .artbes +
-                                                            ' ' +
-                                                            basketChecked[index]
-                                                                .artuni)
-                                                  ]))
-                                        ]),
-                                      )
-                                    : Container();
-                              }),
-                          Divider(
-                            height: 6.0,
-                          ),
-                        ]),
+                                                                    .artpri ==
+                                                                'x'
+                                                        ? Container()
+                                                        : SizedBox(
+                                                            height: 20,
+                                                            child: Row(
+                                                                children: <
+                                                                    Widget>[
+                                                                  Text(AppLocalizations.of(
+                                                                              context)
+                                                                          .price +
+                                                                      ': '),
+                                                                  Text(basketChecked[index].artpri ==
+                                                                          basketChecked[index]
+                                                                              .artbes
+                                                                      ? basketChecked[index]
+                                                                              .artbes +
+                                                                          ' ' +
+                                                                          basketChecked[index]
+                                                                              .artuni
+                                                                      : basketChecked[index]
+                                                                              .artpri +
+                                                                          ' / ' +
+                                                                          basketChecked[index]
+                                                                              .artbes +
+                                                                          ' ' +
+                                                                          basketChecked[index]
+                                                                              .artuni)
+                                                                ]))
+                                                  ]),
+                                            )
+                                          : Container();
+                                    }),
+                                index + 1 < basketChecked.length &&
+                                        basketChecked[index + 1].artnumint ==
+                                            'comment'
+                                    ? Container()
+                                    : Divider(
+                                        height: 6.0,
+                                      ),
+                              ]),
                         // onTap: () {},
                       );
                     },
@@ -3389,6 +3418,12 @@ class _CheckedWidgetState extends State<CheckedWidget> {
     } else {
       basketChecked.add(basrow);
       basketChecked[basketChecked.length - 1].newchecked = true;
+      if (basketChecked.length > 1) {
+        basketItemScrollController.scrollTo(
+            index: basketChecked.length - 1,
+            duration: Duration(seconds: 1),
+            curve: Curves.easeInOutCubic);
+      }
     }
     _storage.writeBasket(basketChecked);
     globals.basketCounter.value = basketChecked.length;
@@ -3583,13 +3618,18 @@ class _SearchScreen extends State<SearchScreen>
         titleSpacing: 0,
         flexibleSpace: CupertinoNavigationBar(
           backgroundColor: myTheme.bottomAppBarColor,
-          middle: IOSSearchBar(
-            controller: _searchTextController,
-            focusNode: _searchFocusNode,
-            animation: _animation,
-            onCancel: _cancelSearch,
-            onClear: _clearSearch,
-            onSubmit: _goSearch,
+          middle: Listener(
+            onPointerDown: (_) {
+              if (!_searchFocusNode.hasFocus) _searchFocusNode.requestFocus();
+            },
+            child: IOSSearchBar(
+              controller: _searchTextController,
+              focusNode: _searchFocusNode,
+              animation: _animation,
+              onCancel: _cancelSearch,
+              onClear: _clearSearch,
+              onSubmit: _goSearch,
+            ),
           ),
         ),
       ),
@@ -3790,18 +3830,22 @@ class _ParameterScreen extends State<ParameterScreen> {
             SizedBox(height: 5.0),
             thumbRatioControl(),
             SizedBox(height: 10.0),
-            Center(
-              child: Text(AppLocalizations.of(context).showprice),
-            ),
-            Switch(
-                value: approShowPrice,
-                onChanged: (b) {
-                  setState(() {
-                    approShowPrice = b;
-                  });
-                  globals.checkoutRefresh.value =
-                      !globals.checkoutRefresh.value;
-                })
+            approDisableShowPrice
+                ? Container()
+                : Center(
+                    child: Text(AppLocalizations.of(context).showprice),
+                  ),
+            approDisableShowPrice
+                ? Container()
+                : Switch(
+                    value: approShowPrice,
+                    onChanged: (b) {
+                      setState(() {
+                        approShowPrice = b;
+                      });
+                      globals.checkoutRefresh.value =
+                          !globals.checkoutRefresh.value;
+                    })
           ]),
         ),
       ),
@@ -4301,6 +4345,7 @@ class TouchInfo extends StatefulWidget {
   final String artnumint;
   final double leftPadding;
   final String artpri;
+  final String artpac;
 
   const TouchInfo(
       {Key key,
@@ -4312,7 +4357,8 @@ class TouchInfo extends StatefulWidget {
       this.enabled = true,
       this.artnumint = '',
       this.leftPadding = 64,
-      this.artpri = ''})
+      this.artpri = '',
+      this.artpac = ''})
       : super(key: key);
 
   @override
@@ -4329,6 +4375,7 @@ class _TouchInfoState extends State<TouchInfo> {
 
   String get _artnumint => widget.artnumint;
   String get _text => widget.artpri;
+  String get _artpac => widget.artpac;
 
   Future _checkStock(context) async {
     _basketDetail = await checkBasketItem(context, _artnumint, _value);
@@ -4373,7 +4420,7 @@ class _TouchInfoState extends State<TouchInfo> {
                                 width: 18.0,
                               )
                             : Icon(Feather.package,
-                                color: Colors.grey, size:18.0)),
+                                color: Colors.grey, size: 18.0)),
                     /*Icons.expand_more_outlined*/
                     iconSize: 23.0,
                     color: Colors.grey,
@@ -4458,6 +4505,13 @@ class _TouchInfoState extends State<TouchInfo> {
                                                         1.0)
                                               ])
                               ]),
+                        SizedBox(height: 4.0, width: 0.0),
+                        Row(children: <Widget>[
+                          Wrap(children: <Widget>[
+                            Text(AppLocalizations.of(context).packing + ': '),
+                            Text(_artpac)
+                          ])
+                        ]),
                         SizedBox(height: 4.0, width: 0.0),
                         approShowPrice
                             ? Row(children: <Widget>[
@@ -4579,6 +4633,76 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
       child: Row(children: chips),
     );
 */
+  }
+}
+
+class TextEditScreen extends StatefulWidget {
+  TextEditScreen(this.bd);
+
+  final BasketDetail bd;
+
+  @override
+  _TextEditScreen createState() => _TextEditScreen(this.bd);
+}
+
+class _TextEditScreen extends State<TextEditScreen> {
+  _TextEditScreen(this.bd);
+  final BasketDetail bd;
+  final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.text = bd.artdes;
+  }
+
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Column(children: <Widget>[Icon(Icons.edit)]),
+      ),
+      body: SingleChildScrollView(
+    padding: EdgeInsets.only(top: 5.0, bottom: 60),
+    child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(height: 15.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: CupertinoTextField(
+              maxLines: 10,
+              controller: _controller,
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              clearButtonMode: OverlayVisibilityMode.editing,
+              keyboardType: TextInputType.text,
+              autocorrect: false,
+              autofocus: true,
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    width: 0,
+                    color: CupertinoColors.inactiveGray,
+                  ),
+                ),
+              ),
+              placeholder: AppLocalizations.of(context).reqval,
+              onEditingComplete: () {
+                bd.artdes = _controller.text;
+                var _storage = new BasketStorage();
+                _storage.writeBasket(basketChecked);
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+    ),);
   }
 }
 
