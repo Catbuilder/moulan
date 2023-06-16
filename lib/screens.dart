@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:math';
 //import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart'  as badges;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -58,30 +58,14 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
   }
 
   void didChangeMetrics() {
-    /*
-    print('changeOrientation: ' + SizeConfig.blockSizeHorizontal.toString());
-
-    setState(() {
-      _themeProvider.setTheme(myTheme.copyWith(
-          textTheme: myTheme.textTheme.copyWith(
-              subtitle1: myTheme.textTheme.subtitle1.copyWith(
-        fontSize: ((SizeConfig.blockSizeHorizontal <=
-            SizeConfig.blockSizeVertical
-            ? SizeConfig.blockSizeHorizontal
-            : SizeConfig.blockSizeVertical) / 3.2) * approDataTextSize,
-      ))));
-
-    });
-
-    */
   }
 
   Widget _shoppingCartBadge() {
-    return Badge(
+    return badges.Badge(
       badgeColor: globals.badgeColor,
-      position: BadgePosition.topEnd(top: -7, end: -12),
+      position: badges.BadgePosition.topEnd(top: -7, end: -12),
       animationDuration: Duration(milliseconds: 300),
-      animationType: BadgeAnimationType.slide,
+      animationType: badges.BadgeAnimationType.slide,
       showBadge: true,
       badgeContent: ValueListenableBuilder(
         valueListenable: globals.basketCounter,
@@ -94,11 +78,11 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
   }
 
   Widget _catalogBadge() {
-    return Badge(
+    return badges.Badge(
       badgeColor: globals.badgeColor,
-      position: BadgePosition.topEnd(top: -7, end: -12),
+      position: badges.BadgePosition.topEnd(top: -7, end: -12),
       animationDuration: Duration(milliseconds: 300),
-      animationType: BadgeAnimationType.slide,
+      animationType: badges.BadgeAnimationType.slide,
       showBadge: true,
       badgeContent: ValueListenableBuilder(
         valueListenable: globals.infoCounter,
@@ -843,7 +827,7 @@ class _FavoriteScreen extends State<FavoriteScreen> {
       child: CupertinoSlidingSegmentedControl(
           groupValue: segmentedControlValue,
           backgroundColor: Colors.transparent,
-          thumbColor: myTheme.toggleableActiveColor,
+          thumbColor: myTheme.colorScheme.background,
           children: mapMenuSegment,
           onValueChanged: (value) {
             setState(() {
@@ -1277,7 +1261,8 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
-                                      primary: myTheme.toggleButtonsTheme.color,
+                                      backgroundColor:
+                                      myTheme.toggleButtonsTheme.color,
                                       visualDensity: VisualDensity.compact,
                                       textStyle: TextStyle(fontSize: 12.0)),
                                   child: Text(
@@ -1623,13 +1608,13 @@ class _TreeScreen extends State<TreeScreen> {
                                       Navigator.of(context).push(route);
                                     },
                                   )
-                                : Badge(
+                                : badges.Badge(
                                     badgeColor: globals.badgeColor,
                                     position:
-                                        BadgePosition.topEnd(top: -2, end: -3),
+                                    badges.BadgePosition.topEnd(top: -2, end: -3),
                                     animationDuration:
                                         Duration(milliseconds: 300),
-                                    animationType: BadgeAnimationType.slide,
+                                    animationType: badges.BadgeAnimationType.slide,
                                     badgeContent: ValueListenableBuilder(
                                       valueListenable: globals.infoCounter,
                                       builder: (BuildContext context, int value,
@@ -2119,14 +2104,11 @@ class _ScanScreenState extends State<ScanScreen> {
                                                 basketScanned[index].artnumint);
                                           }
                                         },
-                                        style: ElevatedButton.styleFrom(
-                                            primary: myTheme
-                                                .toggleButtonsTheme.color,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            textStyle: TextStyle(
-                                                fontSize:
-                                                    approDataTextSize * 1.0)),
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                              myTheme.toggleButtonsTheme.color,
+                                              visualDensity: VisualDensity.compact,
+                                              textStyle: TextStyle(fontSize: 12.0)),
                                         child: Text(
                                           basketScanned[index].artnumint,
                                         ),
@@ -2643,14 +2625,10 @@ class _BasketScreen extends State<BasketScreen> {
                                               }
                                             },
                                             style: ElevatedButton.styleFrom(
-                                                primary: myTheme
-                                                    .toggleButtonsTheme.color,
-                                                visualDensity:
-                                                    VisualDensity.compact,
-                                                textStyle: TextStyle(
-                                                    fontSize:
-                                                        approDataTextSize *
-                                                            1.0)),
+                                                backgroundColor:
+                                                myTheme.toggleButtonsTheme.color,
+                                                visualDensity: VisualDensity.compact,
+                                                textStyle: TextStyle(fontSize: 12.0)),
                                             child: Text(
                                               basketChecked[index].artnumint,
                                             ),
@@ -3625,7 +3603,7 @@ class _SearchScreen extends State<SearchScreen>
       appBar: AppBar(
         titleSpacing: 0,
         flexibleSpace: CupertinoNavigationBar(
-          backgroundColor: myTheme.bottomAppBarColor,
+          backgroundColor: myTheme.bottomAppBarTheme.color,
           middle: Listener(
             onPointerDown: (_) {
               if (!_searchFocusNode.hasFocus) _searchFocusNode.requestFocus();
@@ -3730,7 +3708,7 @@ class _ParameterScreen extends State<ParameterScreen> {
       child: CupertinoSlidingSegmentedControl(
           groupValue: segmentedLanguageValue,
 //          backgroundColor: myTheme.buttonColor,
-          thumbColor: myTheme.toggleableActiveColor,
+          thumbColor: myTheme.colorScheme.background,
           children: mapLanguageSegment,
           onValueChanged: (value) {
             setState(() {
@@ -3747,7 +3725,7 @@ class _ParameterScreen extends State<ParameterScreen> {
       child: CupertinoSlidingSegmentedControl(
           groupValue: segmentedDataTextValue,
 //          backgroundColor: myTheme.buttonColor,
-          thumbColor: myTheme.toggleableActiveColor,
+          thumbColor: myTheme.colorScheme.background,
           children: mapDataTextSegment,
           onValueChanged: (value) {
             setState(() {
@@ -3756,7 +3734,7 @@ class _ParameterScreen extends State<ParameterScreen> {
 
               _themeProvider.setTheme(myTheme.copyWith(
                   textTheme: myTheme.textTheme.copyWith(
-                      subtitle1: myTheme.textTheme.subtitle1.copyWith(
+                      titleMedium: myTheme.textTheme.titleMedium.copyWith(
                 fontSize: value * 1.0,
               ))));
             });
@@ -3768,6 +3746,7 @@ class _ParameterScreen extends State<ParameterScreen> {
     return Container(
       width: 300,
       child: CupertinoSlider(
+          thumbColor:myTheme.indicatorColor,
           value: approThumbSizeRatio,
           min: 0.8,
           max: 2.0,
@@ -3777,9 +3756,9 @@ class _ParameterScreen extends State<ParameterScreen> {
               approThumbSizeRatio = selectedValue;
               _themeProvider.setTheme(myTheme.copyWith(
                   textTheme: myTheme.textTheme.copyWith(
-                      subtitle1: myTheme.textTheme.subtitle1.copyWith(
-                fontSize: approDataTextSize * 1.0,
-              ))));
+                      titleMedium: myTheme.textTheme.titleMedium.copyWith(
+                        fontSize: approDataTextSize * 1.0,
+                      ))));
             });
           }),
     );
@@ -3885,34 +3864,56 @@ class GeneralDrawer extends StatelessWidget {
     }
   }
 
+  _viewURL(url) async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(
+        Uri.parse(url),
+        webViewConfiguration: WebViewConfiguration(
+          enableJavaScript: true,
+        ),
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+  void _showPDF(context,u,n) async {
+    List<String> myUrl = [''];
+    myUrl[0] = u;
+    var route = MaterialPageRoute(
+      builder: (BuildContext context) =>
+          PdfScreen(myUrl, n),
+    );
+    Navigator.of(context).push(route);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
         child: Column(children: <Widget>[
-      Container(
-          height: MediaQuery.of(context).padding.top +
-              AppBar().preferredSize.height,
-          child: DrawerHeader(
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    alignment: Alignment.centerLeft,
-                    icon: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ]),
-            margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
-            decoration: BoxDecoration(
-              color: myTheme.bottomAppBarColor,
-            ),
-          )),
+          Container(
+              height: MediaQuery.of(context).padding.top +
+                  AppBar().preferredSize.height,
+              child: DrawerHeader(
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget >[
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        alignment: Alignment.centerLeft,
+                        icon: Icon(
+                          Icons.menu,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ]),
+                margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
+                decoration: BoxDecoration(
+                  color: myTheme.bottomAppBarTheme.color,
+                ),
+              )),
       Expanded(
         child: ListView(
             // Important: Remove any padding from the ListView.
@@ -3947,6 +3948,23 @@ class GeneralDrawer extends StatelessWidget {
                 },
               ),
               ListTile(
+                contentPadding:
+                EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                leading: Icon(Icons.open_in_browser_outlined),
+                title: Text(AppLocalizations.of(context).cgv),
+                onTap: () {
+                  _viewURL('https://www.moulan.be/conditions-generales-de-vente');
+                },
+              ),
+              ListTile(
+                contentPadding:
+                EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                leading: Icon(AntDesign.pdffile1, size: 20.0),
+                title: Text(AppLocalizations.of(context).deliveryplanning),
+                onTap: () {
+                  _showPDF(context,approDoc1,AppLocalizations.of(context).deliveryplanning);
+                },
+              ),              ListTile(
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 leading: Icon(Icons.logout),
@@ -4123,7 +4141,7 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                       ? widget.iconDisabledColor ??
                           Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                          Theme.of(context).textTheme.button.color,
+                          Theme.of(context).textTheme.labelLarge.color,
                   icon: widget.subtractIcon,
                   onPressed: minusBtnDisabled
                       ? null
@@ -4171,7 +4189,7 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                       ? widget.iconDisabledColor ??
                           Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                          Theme.of(context).textTheme.button.color,
+                          Theme.of(context).textTheme.labelLarge.color,
                   icon: widget.addIcon,
                   onPressed: addBtnDisabled
                       ? null
@@ -4592,29 +4610,32 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
     );
   }
 
-  Widget _buildChips() {
-    List<Widget> chips = [];
+  Widget  _buildChips() {
+    List<Widget >  chips = [];
     var myTab = basrow.artoul.split('|');
-    int _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
+    int  _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
     if (_idx > -1) basrow.artorduni = basketChecked[_idx].artorduni;
     if (basrow.artorduni == '' && myTab.length > 0) basrow.artorduni = myTab[0];
     for (var i = 0; i < myTab.length; i++) {
-      ChoiceChip choiceChip = ChoiceChip(
+      ChoiceChip  choiceChip = ChoiceChip(
         visualDensity: VisualDensity.compact,
         selected: myTab[i] == basrow.artorduni,
         label: Text(myTab[i]),
         labelStyle: TextStyle(
             fontSize: approDataTextSize * 1.0,
-            color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black),
+            color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black
+        ),
         avatar: null,
         elevation: 1,
         pressElevation: 3,
+        backgroundColor: myTheme.colorScheme.background,
+
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        selectedColor: myTheme.toggleableActiveColor,
-        onSelected: (bool selected) {
+        selectedColor: myTheme.indicatorColor,
+        onSelected: (bool  selected) {
           setState(() {
-            int _idx =
-                basketChecked.indexWhere((e) => e.artnumint == artnumint);
+            int  _idx =
+            basketChecked.indexWhere((e) => e.artnumint == artnumint);
             if (_idx > -1) basketChecked[_idx].artorduni = myTab[i];
             if (refresh) checkBasket(context, _idx);
             if (selected) {

@@ -60,6 +60,7 @@
   "confirmdeletetext": "Bent, u zeker dat u dit item wilt verwijderen?",
   "deleteok": "Item is verwijderd",
   "deletenok": "Fout, item is niet verwijderd",
-  "comment": "Opmerking"
-
+  "comment": "Opmerking",
+  "cgv": "Verkoopvoorwaarden",
+  "deliveryplanning": "Leveringsplanning"
 }

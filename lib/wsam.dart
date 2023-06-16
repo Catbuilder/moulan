@@ -34,6 +34,7 @@ var approShowStockIcon = true;
 var approShowNews = false;
 var approShowComment = false;
 var approNewsTitle = '';
+var approDoc1 = '';
 PersistentTabController mainTab;
 List<String> approLanguages = ['fr'];
 List<BasketDetail> basketChecked = [];
@@ -110,6 +111,8 @@ Future<ReturnFunctionCode> getCredential(us, ps, sh, context, to) async {
   approLogo = '';
   var tag = document.findAllElements('logo');
   if (tag.length > 0) approLogo = tag.first.text;
+  tag = document.findAllElements('doc1');
+  if (tag.length > 0) approDoc1 = tag.first.text;
 
   approCanOrder = (document.findAllElements('canorder').first.text == 'true');
   final languages = document.findAllElements('languages');

@@ -259,7 +259,7 @@ class ReactiveLabelRenderer2 extends FormElementRenderer<cp.Label> {
               return Container(
                   padding: EdgeInsets.all(5.0),
                   width: MediaQuery.of(context).size.width,
-                  color: myTheme.backgroundColor,
+                  color: myTheme.colorScheme.background,
                   child: Text(
                     snapshot.data,
                   ));

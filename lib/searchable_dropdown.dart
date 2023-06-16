@@ -367,10 +367,10 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
   TextStyle get _textStyle =>
       widget.style ??
       (_enabled && !(widget.readOnly ?? false)
-          ? Theme.of(context).textTheme.bodyText2
+          ? Theme.of(context).textTheme.bodyMedium
           : Theme.of(context)
               .textTheme
-              .bodyText2
+              .bodyMedium
               .copyWith(color: _disabledIconColor));
   bool get _enabled =>
       widget.items != null &&
