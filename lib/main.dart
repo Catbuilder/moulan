@@ -84,7 +84,7 @@ class _MainMenuState extends State<MainMenu> {
   void _setTheme() {
     _themeProvider.setTheme(myTheme.copyWith(
         textTheme: myTheme.textTheme.copyWith(
-            subtitle1: myTheme.textTheme.subtitle1.copyWith(
+            titleMedium: myTheme.textTheme.titleMedium.copyWith(
       fontSize: approDataTextSize * 1.0,
     ))));
   }

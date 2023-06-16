@@ -60,6 +60,7 @@
   "confirmdeletetext": "Etes vous sûr de vouloir supprimer cet élément?",
   "deleteok": "Elément supprimé",
   "deletenok": "Erreur, l'élément n'est pas supprimé",
-  "comment": "Commentaire"
-
+  "comment": "Commentaire",
+  "cgv": "Conditions générales de vente",
+  "deliveryplanning": "Planning de livraisons"
 }

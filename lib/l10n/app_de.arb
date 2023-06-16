@@ -60,5 +60,7 @@
   "confirmdeletetext": "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
   "deleteok": "Element wurde gelöscht",
   "deletenok": "Fehler, Element wurde nicht gelöscht",
-  "comment": "Anmerkung"
+  "comment": "Anmerkung",
+  "cgv": "Allgemeine Geschäftsbedingungen",
+  "deliveryplanning": "Lieferplanung"
 }
