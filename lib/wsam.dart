@@ -1321,6 +1321,187 @@ Future<void> getNodePath(nodnum, repcod, context) async {
   }
 }
 
+Future<String> getRegisterInfo(context) async {
+  var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
+  var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
+  var isTo = false;
+  cXML += '<dbsync>';
+  cXML += '<header>';
+  cXML += '<sender><credential><client>appro724</client><identity>' +
+      approUser +
+      '</identity><sharedsecret>' +
+      approCredential +
+      '</sharedsecret></credential></sender>';
+
+  cXML += '</header>';
+  cXML += '<request>';
+  cXML += '<type>sendregister</type>';
+  cXML += '<language>' + Localizations.localeOf(context).toString() + '</language>';
+  cXML += '</request>';
+  cXML += '</dbsync>';
+
+  print(Localizations.localeOf(context).toString());
+
+  if (context != null) {
+    showCupertinoModalPopup(
+        context: context,
+        useRootNavigator: false,
+        builder: (context) => Container(
+            color: Colors.white.withOpacity(0.5),
+            child: Center(child: CircularProgressIndicator())));
+  }
+  http.Response response = await http
+      .post(Uri.parse(myUrl), body: cXML)
+      .timeout(Duration(seconds: 10), onTimeout: () {
+    isTo = true;
+    return http.Response('Timeout',408);
+  });
+  if (context != null) Navigator.pop(context);
+  if (isTo) return '';
+  //print(response.body);
+  var document = XmlDocument.parse(response.body);
+  if (document.findAllElements('result').first.text == '0:OK') {
+    //print(document.findAllElements('data').first.innerText);
+    return document
+        .findAllElements('data')
+        .first
+        .innerText
+        .replaceAll('[[', ']]');
+  } else {
+    return '';
+  }
+}
+
+Future<bool> sendRegister(context, x) async {
+  var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
+  var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
+  cXML += '<dbsync>';
+  cXML += '<header>';
+  cXML += '<sender><credential><client>appro724</client><identity>' +
+      approUser +
+      '</identity><sharedsecret>' +
+      approCredential +
+      '</sharedsecret></credential></sender>';
+  cXML += '</header>';
+  cXML += '<request>';
+  cXML += '<type>sendregister</type>';
+  cXML += '<language>' + approLanguage + '</language>';
+  cXML += '<par1>' +
+      XmlToken.openCDATA +
+      XmlText(x).toString() +
+      XmlToken.closeCDATA +
+      '</par1>';
+
+  cXML += '</request>';
+  cXML += '</dbsync>';
+  showCupertinoModalPopup(
+      context: context,
+      useRootNavigator: false,
+      builder: (context) => Container(
+          color: Colors.white.withOpacity(0.5),
+          child: Center(child: CircularProgressIndicator())));
+  http.Response response = await http.post(Uri.parse(myUrl), body: cXML);
+  Navigator.pop(context);
+  //print(response.body);
+  var document = XmlDocument.parse(response.body);
+  if (document.findAllElements('result').first.innerText == '0:OK') {
+    if (document.findAllElements('message').length > 0) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 10),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        behavior: SnackBarBehavior.fixed,
+        content: Text(document.findAllElements('message').first.innerText),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context).hide,
+          onPressed: () {},
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    return true;
+  }
+  if (document.findAllElements('result').first.innerText == '3:MSG') {
+    final snackBar = SnackBar(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      behavior: SnackBarBehavior.fixed,
+      content: Text(document.findAllElements('message').first.innerText),
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).hide,
+        onPressed: () {},
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+  return false;
+}
+
+Future<bool> sendUnregister(context,x) async {
+  var myUrl = 'https://' + approShop + '.catbuilder.info/catalogs/wsam.asp';
+  var cXML = '<?xml version="1.0" encoding="UTF-8" ?>';
+  cXML += '<dbsync>';
+  cXML += '<header>';
+  cXML += '<sender><credential><client>appro724</client><identity>' +
+      approUser +
+      '</identity><sharedsecret>' +
+      approCredential +
+      '</sharedsecret></credential></sender>';
+  cXML += '</header>';
+  cXML += '<request>';
+  cXML += '<type>dropregistration</type>';
+  cXML += '<language>' +  Localizations.localeOf(context).toString() + '</language>';
+  cXML += '<par1>' +
+      XmlToken.openCDATA +
+      XmlText(x).toString() +
+      XmlToken.closeCDATA +
+      '</par1>';
+
+  cXML += '</request>';
+  cXML += '</dbsync>';
+  showCupertinoModalPopup(
+      context: context,
+      useRootNavigator: false,
+      builder: (context) => Container(
+          color: Colors.white.withOpacity(0.5),
+          child: Center(child: CircularProgressIndicator())));
+  http.Response response = await http.post(Uri.parse(myUrl), body: cXML);
+  Navigator.pop(context);
+  //print(response.body);
+  var document = XmlDocument.parse(response.body);
+  if (document.findAllElements('result').first.innerText == '0:OK') {
+    if (document.findAllElements('message').length > 0) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 5),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        behavior: SnackBarBehavior.fixed,
+        content: Text(document.findAllElements('message').first.innerText),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context).hide,
+          onPressed: () {
+          },
+        ),
+      );
+      final sstorage = new FlutterSecureStorage();
+      approCredential = '';
+      await sstorage.write(key: approShop, value: approCredential);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    return true;
+  }
+  if (document.findAllElements('result').first.innerText == '3:MSG') {
+    final snackBar = SnackBar(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      behavior: SnackBarBehavior.fixed,
+      content: Text(document.findAllElements('message').first.innerText),
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).hide,
+        onPressed: () {},
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+  return false;
+}
+
 int getCheckedCount() {
   int c = 0;
   basketChecked.forEach((b) {

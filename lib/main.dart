@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'globals.dart' as globals;
 import 'theme.dart';
 import 'restart.dart';
 import 'screens.dart';
 import 'wsam.dart';
+import 'dynaform.dart';
 import 'theme_changer.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
@@ -189,6 +192,17 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
+  void sendRegistration(context) async {
+    var myXML = await getRegisterInfo(context);
+    if (myXML != '') {
+      var route = MaterialPageRoute(
+        settings: RouteSettings(name: '/order'),
+        builder: (BuildContext context) => RegisterFormXml(myXML),
+      );
+      Navigator.of(context).push(route);
+    }
+  }
+
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     _themeProvider = Provider.of<ThemeChanger>(context);
@@ -284,7 +298,7 @@ class _MainMenuState extends State<MainMenu> {
                       disabledBorder: InputBorder.none),
                 ),
               ),
-              SizedBox(height: 10.0),
+              SizedBox(height: 0.0),
               Center(
                 child: Padding(
                   padding:
@@ -292,9 +306,9 @@ class _MainMenuState extends State<MainMenu> {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minWidth: 128,
-                      minHeight: 128,
+                      minHeight: 40,
                       maxWidth: 200,
-                      maxHeight: 128,
+                      maxHeight: 64,
                     ),
                     child: FadeInImage(
                       imageErrorBuilder: (BuildContext context,
@@ -317,6 +331,36 @@ class _MainMenuState extends State<MainMenu> {
                   ),
                 ),
               ),
+              SizedBox(height: 20.0),
+              Center(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: AppLocalizations.of(context).notyetregistered,
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 5.0),
+              Center(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                          text: AppLocalizations.of(context).registernow,
+                          style: TextStyle(color: globals.artnumintColor),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => sendRegistration(context)),
+                    ],
+                  ),
+                ),
+              ),
+
             ],
           ),
         ),

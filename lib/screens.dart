@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:math';
 //import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:badges/badges.dart'  as badges;
+import 'package:badges/badges.dart' as badges;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -28,7 +28,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 GlobalKey<_TreeScreen> approTreeScreen = GlobalKey<_TreeScreen>();
 
-ItemScrollController basketItemScrollController ;
+ItemScrollController basketItemScrollController;
 ItemPositionsListener basketItemPositionsListener;
 
 class MainTabState extends StatefulWidget {
@@ -57,8 +57,7 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void didChangeMetrics() {
-  }
+  void didChangeMetrics() {}
 
   Widget _shoppingCartBadge() {
     return badges.Badge(
@@ -669,7 +668,8 @@ class _PdfScreen extends State<PdfScreen> {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
               Expanded(
@@ -751,7 +751,8 @@ class _PdfScreen extends State<PdfScreen> {
           ),
         ),
         appBar: AppBar(
-            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
               Expanded(
@@ -857,7 +858,8 @@ class _FavoriteScreen extends State<FavoriteScreen> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
 //              Text(FavoriteCode == 'archive' ? 'History' : 'Favorite'),
@@ -1122,7 +1124,8 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-            title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
               Expanded(
@@ -1262,7 +1265,7 @@ class _FavoriteDetailScreen extends State<FavoriteDetailScreen> {
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor:
-                                      myTheme.toggleButtonsTheme.color,
+                                          myTheme.toggleButtonsTheme.color,
                                       visualDensity: VisualDensity.compact,
                                       textStyle: TextStyle(fontSize: 12.0)),
                                   child: Text(
@@ -1448,7 +1451,8 @@ class ItemDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Expanded(
@@ -1575,12 +1579,14 @@ class _TreeScreen extends State<TreeScreen> {
       backgroundColor: Colors.white,
       drawer: GeneralDrawer(),
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Text(AppLocalizations.of(context).catalog,
                 style: TextStyle(fontSize: 14.0)),
-            Row(mainAxisAlignment: MainAxisAlignment.end,
+            Row(
+                mainAxisAlignment: MainAxisAlignment.end,
 //            crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   !approShowNews
@@ -1610,11 +1616,12 @@ class _TreeScreen extends State<TreeScreen> {
                                   )
                                 : badges.Badge(
                                     badgeColor: globals.badgeColor,
-                                    position:
-                                    badges.BadgePosition.topEnd(top: -2, end: -3),
+                                    position: badges.BadgePosition.topEnd(
+                                        top: -2, end: -3),
                                     animationDuration:
                                         Duration(milliseconds: 300),
-                                    animationType: badges.BadgeAnimationType.slide,
+                                    animationType:
+                                        badges.BadgeAnimationType.slide,
                                     badgeContent: ValueListenableBuilder(
                                       valueListenable: globals.infoCounter,
                                       builder: (BuildContext context, int value,
@@ -2104,11 +2111,13 @@ class _ScanScreenState extends State<ScanScreen> {
                                                 basketScanned[index].artnumint);
                                           }
                                         },
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                              myTheme.toggleButtonsTheme.color,
-                                              visualDensity: VisualDensity.compact,
-                                              textStyle: TextStyle(fontSize: 12.0)),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: myTheme
+                                                .toggleButtonsTheme.color,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            textStyle:
+                                                TextStyle(fontSize: 12.0)),
                                         child: Text(
                                           basketScanned[index].artnumint,
                                         ),
@@ -2301,6 +2310,7 @@ class _BasketScreen extends State<BasketScreen> {
     basketItemPositionsListener = ItemPositionsListener.create();
     super.initState();
   }
+
   void dispose() {
     super.dispose();
   }
@@ -2319,7 +2329,7 @@ class _BasketScreen extends State<BasketScreen> {
         floatingActionButton: FloatingActionButton(
           tooltip: AppLocalizations.of(context).send,
           mini: true,
-          onPressed: ()  {
+          onPressed: () {
             if (basketChecked.indexWhere((b) => b.status == 0) > -1) {
               final snackBar = SnackBar(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -2625,21 +2635,22 @@ class _BasketScreen extends State<BasketScreen> {
                                               }
                                             },
                                             style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                myTheme.toggleButtonsTheme.color,
-                                                visualDensity: VisualDensity.compact,
-                                                textStyle: TextStyle(fontSize: 12.0)),
+                                                backgroundColor: myTheme
+                                                    .toggleButtonsTheme.color,
+                                                visualDensity:
+                                                    VisualDensity.compact,
+                                                textStyle:
+                                                    TextStyle(fontSize: 12.0)),
                                             child: Text(
                                               basketChecked[index].artnumint,
                                             ),
                                           ),
-
                                         ])),
                                   ],
                                 )),
                                 ListTile(
                                   leading: approShowComment
-                                      ?  IconButton(
+                                      ? IconButton(
                                           icon:
                                               Icon(Icons.add_comment_outlined),
                                           onPressed: () {
@@ -2755,25 +2766,25 @@ class _BasketScreen extends State<BasketScreen> {
                                                                 MainAxisAlignment
                                                                     .start,
                                                             children: <Widget>[
-                                                              basketChecked[index]
-                                                                          .artoul
-                                                                          .indexOf(
-                                                                              '|') ==
-                                                                      -1
-                                                                  ? Text(AppLocalizations.of(
-                                                                              context)
-                                                                          .orderunit +
-                                                                      ': ' +
-                                                                      basketChecked[
-                                                                              index]
-                                                                          .artorduni)
-                                                                  : OrderUnitWidget(
-                                                                      basketChecked[
-                                                                          index],
-                                                                      true,
-                                                                      basketChecked[
-                                                                              index]
-                                                                          .artnumint),
+                                                          basketChecked[index]
+                                                                      .artoul
+                                                                      .indexOf(
+                                                                          '|') ==
+                                                                  -1
+                                                              ? Text(AppLocalizations.of(
+                                                                          context)
+                                                                      .orderunit +
+                                                                  ': ' +
+                                                                  basketChecked[
+                                                                          index]
+                                                                      .artorduni)
+                                                              : OrderUnitWidget(
+                                                                  basketChecked[
+                                                                      index],
+                                                                  true,
+                                                                  basketChecked[
+                                                                          index]
+                                                                      .artnumint),
 
 /*                                                    IconButton(
                                                       padding: EdgeInsets.zero,
@@ -2807,7 +2818,7 @@ class _BasketScreen extends State<BasketScreen> {
                                                     )
 
  */
-                                                            ])),
+                                                        ])),
                                                     basketChecked[index]
                                                                 .artstofla ==
                                                             'x'
@@ -2847,12 +2858,19 @@ class _BasketScreen extends State<BasketScreen> {
                                                                 ])),
                                                     Row(children: <Widget>[
                                                       Wrap(children: <Widget>[
-                                                        Text(AppLocalizations.of(context).packing + ': '),
-                                                        Text(basketChecked[index]
-                                                            .artpac)
+                                                        Text(
+                                                            AppLocalizations.of(
+                                                                        context)
+                                                                    .packing +
+                                                                ': '),
+                                                        Text(
+                                                            basketChecked[index]
+                                                                .artpac)
                                                       ])
                                                     ]),
-                                                    SizedBox(height: 4.0, width: 0.0),
+                                                    SizedBox(
+                                                        height: 4.0,
+                                                        width: 0.0),
                                                     approShowPrice == false ||
                                                             basketChecked[index]
                                                                     .artpri ==
@@ -2969,7 +2987,8 @@ class BasketDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Expanded(
@@ -3063,7 +3082,8 @@ class BasketSendScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Text(AppLocalizations.of(context).send,
@@ -3313,7 +3333,8 @@ class SendOrderScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Text('Send order'),
@@ -3746,7 +3767,7 @@ class _ParameterScreen extends State<ParameterScreen> {
     return Container(
       width: 300,
       child: CupertinoSlider(
-          thumbColor:myTheme.indicatorColor,
+          thumbColor: myTheme.indicatorColor,
           value: approThumbSizeRatio,
           min: 0.8,
           max: 2.0,
@@ -3757,8 +3778,8 @@ class _ParameterScreen extends State<ParameterScreen> {
               _themeProvider.setTheme(myTheme.copyWith(
                   textTheme: myTheme.textTheme.copyWith(
                       titleMedium: myTheme.textTheme.titleMedium.copyWith(
-                        fontSize: approDataTextSize * 1.0,
-                      ))));
+                fontSize: approDataTextSize * 1.0,
+              ))));
             });
           }),
     );
@@ -3774,7 +3795,8 @@ class _ParameterScreen extends State<ParameterScreen> {
     _themeProvider = Provider.of<ThemeChanger>(context);
     return Scaffold(
       appBar: AppBar(
-          title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //            crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
             Text(AppLocalizations.of(context).parameter,
@@ -3840,6 +3862,73 @@ class _ParameterScreen extends State<ParameterScreen> {
   }
 }
 
+class UnregisterScreen extends StatefulWidget {
+  UnregisterScreen();
+  @override
+  _UnregisterScreen createState() => _UnregisterScreen();
+}
+
+class _UnregisterScreen extends State<UnregisterScreen> {
+  _UnregisterScreen();
+  final _formKey = GlobalKey<FormState>();
+  final comController = TextEditingController();
+
+  _unregister(context) async {
+    if (await sendUnregister(context, comController.text)) {
+      Future.delayed(Duration(seconds: 5)).then((v) {
+        Navigator.of(context).popAndPushNamed('/');
+        RestartWidget.restartApp(context);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).unregisternow,
+            style: TextStyle(fontSize: 14.0)),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(top: 0, bottom: 300),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(height: 5.0),
+              Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                child: TextField(
+                    keyboardType: TextInputType.multiline,
+                    controller: comController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText:
+                      AppLocalizations.of(context).messageunregisternow,
+                    )),
+              ),
+              SizedBox(height: 15.0),
+              Center(
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.delete),
+                  label: Text(AppLocalizations.of(context).delete),
+                  onPressed: () {
+                    _unregister(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class GeneralDrawer extends StatelessWidget {
   _launchURL() async {
     var url = 'https://' +
@@ -3876,12 +3965,12 @@ class GeneralDrawer extends StatelessWidget {
       throw 'Could not launch $url';
     }
   }
-  void _showPDF(context,u,n) async {
+
+  void _showPDF(context, u, n) async {
     List<String> myUrl = [''];
     myUrl[0] = u;
     var route = MaterialPageRoute(
-      builder: (BuildContext context) =>
-          PdfScreen(myUrl, n),
+      builder: (BuildContext context) => PdfScreen(myUrl, n),
     );
     Navigator.of(context).push(route);
   }
@@ -3890,30 +3979,30 @@ class GeneralDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
         child: Column(children: <Widget>[
-          Container(
-              height: MediaQuery.of(context).padding.top +
-                  AppBar().preferredSize.height,
-              child: DrawerHeader(
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget >[
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        alignment: Alignment.centerLeft,
-                        icon: Icon(
-                          Icons.menu,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ]),
-                margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
-                decoration: BoxDecoration(
-                  color: myTheme.bottomAppBarTheme.color,
-                ),
-              )),
+      Container(
+          height: MediaQuery.of(context).padding.top +
+              AppBar().preferredSize.height,
+          child: DrawerHeader(
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    alignment: Alignment.centerLeft,
+                    icon: Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ]),
+            margin: EdgeInsets.only(top: 0.0, bottom: 0.0),
+            decoration: BoxDecoration(
+              color: myTheme.bottomAppBarTheme.color,
+            ),
+          )),
       Expanded(
         child: ListView(
             // Important: Remove any padding from the ListView.
@@ -3949,22 +4038,43 @@ class GeneralDrawer extends StatelessWidget {
               ),
               ListTile(
                 contentPadding:
-                EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 leading: Icon(Icons.open_in_browser_outlined),
                 title: Text(AppLocalizations.of(context).cgv),
                 onTap: () {
-                  _viewURL('https://www.moulan.be/conditions-generales-de-vente');
+                  _viewURL(
+                      'https://www.moulan.be/conditions-generales-de-vente');
+                },
+              ),
+              ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                leading: Icon(AntDesign.pdffile1, size: 20.0),
+                title: Text(AppLocalizations.of(context).deliveryplanning),
+                onTap: () {
+                  _showPDF(context, approDoc1,
+                      AppLocalizations.of(context).deliveryplanning);
                 },
               ),
               ListTile(
                 contentPadding:
                 EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                leading: Icon(AntDesign.pdffile1, size: 20.0),
-                title: Text(AppLocalizations.of(context).deliveryplanning),
+                leading: Icon(Icons.delete),
+                title: Text(AppLocalizations.of(context).unregisternow),
                 onTap: () {
-                  _showPDF(context,approDoc1,AppLocalizations.of(context).deliveryplanning);
+                  Navigator.pop(context);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) {
+                      return UnregisterScreen();
+                    },
+                    settings: RouteSettings(
+                      name: '/',
+                    ),
+                  ));
                 },
-              ),              ListTile(
+              ),
+
+              ListTile(
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 leading: Icon(Icons.logout),
@@ -4610,32 +4720,30 @@ class _OrderUnitWidgetState extends State<OrderUnitWidget> {
     );
   }
 
-  Widget  _buildChips() {
-    List<Widget >  chips = [];
+  Widget _buildChips() {
+    List<Widget> chips = [];
     var myTab = basrow.artoul.split('|');
-    int  _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
+    int _idx = basketChecked.indexWhere((e) => e.artnumint == artnumint);
     if (_idx > -1) basrow.artorduni = basketChecked[_idx].artorduni;
     if (basrow.artorduni == '' && myTab.length > 0) basrow.artorduni = myTab[0];
     for (var i = 0; i < myTab.length; i++) {
-      ChoiceChip  choiceChip = ChoiceChip(
+      ChoiceChip choiceChip = ChoiceChip(
         visualDensity: VisualDensity.compact,
         selected: myTab[i] == basrow.artorduni,
         label: Text(myTab[i]),
         labelStyle: TextStyle(
             fontSize: approDataTextSize * 1.0,
-            color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black
-        ),
+            color: myTab[i] == basrow.artorduni ? Colors.white : Colors.black),
         avatar: null,
         elevation: 1,
         pressElevation: 3,
         backgroundColor: myTheme.colorScheme.background,
-
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         selectedColor: myTheme.indicatorColor,
-        onSelected: (bool  selected) {
+        onSelected: (bool selected) {
           setState(() {
-            int  _idx =
-            basketChecked.indexWhere((e) => e.artnumint == artnumint);
+            int _idx =
+                basketChecked.indexWhere((e) => e.artnumint == artnumint);
             if (_idx > -1) basketChecked[_idx].artorduni = myTab[i];
             if (refresh) checkBasket(context, _idx);
             if (selected) {
@@ -4697,41 +4805,42 @@ class _TextEditScreen extends State<TextEditScreen> {
         title: Column(children: <Widget>[Icon(Icons.edit)]),
       ),
       body: SingleChildScrollView(
-    padding: EdgeInsets.only(top: 5.0, bottom: 60),
-    child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(height: 15.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            child: CupertinoTextField(
-              maxLines: 10,
-              controller: _controller,
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              clearButtonMode: OverlayVisibilityMode.editing,
-              keyboardType: TextInputType.text,
-              autocorrect: false,
-              autofocus: true,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    width: 0,
-                    color: CupertinoColors.inactiveGray,
+        padding: EdgeInsets.only(top: 5.0, bottom: 60),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(height: 15.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              child: CupertinoTextField(
+                maxLines: 10,
+                controller: _controller,
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                clearButtonMode: OverlayVisibilityMode.editing,
+                keyboardType: TextInputType.text,
+                autocorrect: false,
+                autofocus: true,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 0,
+                      color: CupertinoColors.inactiveGray,
+                    ),
                   ),
                 ),
+                placeholder: AppLocalizations.of(context).reqval,
+                onEditingComplete: () {
+                  bd.artdes = _controller.text;
+                  var _storage = new BasketStorage();
+                  _storage.writeBasket(basketChecked);
+                  Navigator.pop(context);
+                },
               ),
-              placeholder: AppLocalizations.of(context).reqval,
-              onEditingComplete: () {
-                bd.artdes = _controller.text;
-                var _storage = new BasketStorage();
-                _storage.writeBasket(basketChecked);
-                Navigator.pop(context);
-              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),);
+    );
   }
 }
 

@@ -61,6 +61,11 @@
   "deleteok": "Elément supprimé",
   "deletenok": "Erreur, l'élément n'est pas supprimé",
   "comment": "Commentaire",
+  "notyetregistered": "Utilisation réservée aux clients enregistrés de la boutique en ligne\nPas encore enregistré sur la boutique en ligne?",
+  "registernow": "Demandez votre inscription maintenant",
+  "register": "Envoyer",
+  "unregisternow": "Supprimer mon compte",
+  "messageunregisternow": "Raisons (optionnel)",
   "cgv": "Conditions générales de vente",
   "deliveryplanning": "Planning de livraisons"
 }
