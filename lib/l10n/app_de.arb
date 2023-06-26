@@ -61,6 +61,11 @@
   "deleteok": "Element wurde gelöscht",
   "deletenok": "Fehler, Element wurde nicht gelöscht",
   "comment": "Anmerkung",
+  "notyetregistered": "Diese App ist nur für registrierte Webshop-Benutzer\nNoch nicht im Webshop registriert?",
+  "registernow": "Fordern Sie jetzt eine Registrierung an",
+  "register": "senden",
+  "unregisternow": "mein Konto löschen",
+  "messageunregisternow": "Gründe (optional)",
   "cgv": "Allgemeine Geschäftsbedingungen",
   "deliveryplanning": "Lieferplanung"
 }

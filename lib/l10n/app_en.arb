@@ -61,6 +61,11 @@
   "deleteok": "Item is deleted", "@deleteok": {"description": "Item is deleted"},
   "deletenok": "Error, item is not deleted", "@deletenok": {"description": "Item is not deleted"},
   "comment": "Comment", "@comment": {"comment": "Comment"},
+  "notyetregistered": "This app is only for registered e-shop user\nNot yet registered on the e-shop?\n","@notyetregistered": {"description": "Not yet registred"},
+  "registernow": "Ask for e-shop registration now","@registernow": {"description": "Register now"},
+  "register": "Send","@register": {"description": "Register"},
+  "unregisternow": "Delete my account","@unregister": {"description": "Unregister now"},
+  "messageunregisternow": "Reason (optional)","@unregisterreason": {"description": "Unregister reason"},
   "cgv": "Terms of Sales", "@cgv": {"cgv": "cgv"},
   "deliveryplanning": "Delivery planning", "@deliveryplanning": {"deliveryplanning": "Delivery planning"}
 

@@ -61,6 +61,11 @@
   "deleteok": "Item is verwijderd",
   "deletenok": "Fout, item is niet verwijderd",
   "comment": "Opmerking",
+  "notyetregistered": "Deze app is alleen voor geregistreerde webshop-gebruiker\nNog niet geregistreerd in de webshop?",
+  "registernow": "Vraag nu om registratie",
+  "register": "Verzend",
+  "unregisternow": "Verwijder mijn account",
+  "messageunregisternow": "Redenen, (optioneel)",
   "cgv": "Verkoopvoorwaarden",
   "deliveryplanning": "Leveringsplanning"
 }
