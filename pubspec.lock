@@ -914,14 +914,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  virtual_keyboard:
+  virtual_keyboard_2:
     dependency: "direct main"
     description:
-      name: virtual_keyboard
-      sha256: "619393a1589bb8d803fc75339d1a2eb0664fabe517a0074218969d1335f7e46f"
+      name: virtual_keyboard_2
+      sha256: b78964ed19b2b8402a8b77b753baed0399794454b96375ed80d3ab40ab326e33
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.4"
+    version: "0.0.2"
   visibility_detector:
     dependency: "direct main"
     description:

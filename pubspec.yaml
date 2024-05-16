@@ -50,7 +50,7 @@ dependencies:
   shared_preferences: ^2.0.9
   flutter_icons: ^1.1.0
   url_launcher: ^6.0.16
-  virtual_keyboard: ^0.1.4
+  virtual_keyboard_2: ^0.0.2
   visibility_detector: ^0.3.3
   xml: ^5.3.1
 

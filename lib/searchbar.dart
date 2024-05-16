@@ -1,3 +1,4 @@
+// @dart=2.9
 library ios_search_bar;
 
 import 'package:flutter/material.dart';

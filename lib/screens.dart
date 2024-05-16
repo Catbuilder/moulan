@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:moulan/theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -9,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:virtual_keyboard/virtual_keyboard.dart';
+import 'package:virtual_keyboard_2/virtual_keyboard_2.dart';
 import 'package:provider/provider.dart';
 import 'package:scan/scan.dart';
 import 'globals.dart' as globals;
@@ -4149,42 +4150,59 @@ class TouchSpin2 extends StatefulWidget {
   _TouchSpinState2 createState() => _TouchSpinState2();
 }
 
-class _TouchSpinState2 extends State<TouchSpin2> {
-  final GlobalKey expansionKey = GlobalKey();
+class _TouchSpinState2 extends State<TouchSpin2 > {
+  final GlobalKey  expansionKey = GlobalKey();
 
   var _storage = new BasketStorage();
 
   num _value;
-  String _text;
-  BasketDetail _basketDetail =
-      BasketDetail('', '', '', false, 1, '', '', '', []);
-  bool _edit = false;
-  bool _stock = false;
-  bool get minusBtnDisabled =>
+  String  _text;
+  BasketDetail  _basketDetail =
+  BasketDetail('', '', '', false, 1, '', '', '', []);
+  bool  _edit = false;
+  bool  _stock = false;
+  bool  get minusBtnDisabled =>
       _value <= widget.min ||
-      _value - widget.step < widget.min ||
-      !widget.enabled;
+          _value - widget.step < widget.min ||
+          !widget.enabled;
 
-  bool get addBtnDisabled =>
+  bool  get addBtnDisabled =>
       _value >= widget.max ||
-      _value + widget.step > widget.max ||
-      !widget.enabled;
+          _value + widget.step > widget.max ||
+          !widget.enabled;
 
-  bool get _scrollVisible => widget.scrollVisible;
-  bool get _showStockIcon => widget.showStockIcon;
+  bool  get _scrollVisible => widget.scrollVisible;
+  bool  get _showStockIcon => widget.showStockIcon;
   String get _artnumint => widget.artnumint;
 
-  Future _checkStock(context) async {
+  Future  _checkStock(context) async {
     _basketDetail = await checkBasketItem(context, _artnumint, _value);
     //print(_value);
     //print(_basketDetail.artsto);
   }
+  final _kbController = TextEditingController();
+
+  void _onKeyPress () {
+    if (!_edit) return;
+
+    _text = _kbController.text;
+
+    setState(() {
+      _text.length == 0
+          ? _value = 1
+          : _value = num.parse(_text);
+    });
+    if (widget.onChanged != null)
+      widget.onChanged(_value);
+    _storage.writeBasket(basketChecked);
+  }
+
 
   @override
   void initState() {
     super.initState();
     _value = widget.value;
-
+    _kbController.addListener(_onKeyPress);
     if (_scrollVisible) {
       Future.delayed(Duration(milliseconds: 200)).then((v) {
         if (this.mounted) {
@@ -4197,86 +4215,92 @@ class _TouchSpinState2 extends State<TouchSpin2> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _kbController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget  build(BuildContext  context) {
     return Column(
         key: expansionKey,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: <Widget >[
           Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
+              children: <Widget >[
                 _showStockIcon
                     ? ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: widget.leftPadding,
-                          maxWidth: widget.leftPadding,
-                        ),
-                        child: IconButton(
-                            icon: _stock
-                                ? Icon(Icons.expand_less_outlined,
-                                    color: Colors.grey)
-                                : Icon(Feather.package),
-                            iconSize: 23.0,
-                            color: Colors.grey,
-                            onPressed: () async {
-                              if (!_stock) {
-                                await _checkStock(context);
-                                Future.delayed(Duration(milliseconds: 200))
-                                    .then((v) {
-                                  Scrollable.ensureVisible(
-                                      expansionKey.currentContext,
-                                      alignmentPolicy:
-                                          ScrollPositionAlignmentPolicy
-                                              .keepVisibleAtEnd,
-                                      duration: Duration(milliseconds: 200));
-                                });
-                              }
-                              if (_stock) {}
-                              setState(() {
-                                if (_edit) _edit = false;
-                                _stock = !_stock;
-                              });
-                            }))
+                    constraints: BoxConstraints(
+                      minWidth: widget.leftPadding,
+                      maxWidth: widget.leftPadding,
+                    ),
+                    child: IconButton(
+                        icon: _stock
+                            ? Icon(Icons.expand_less_outlined,
+                            color: Colors.grey)
+                            : Icon(Feather.package),
+                        iconSize: 23.0,
+                        color: Colors.grey,
+                        onPressed: () async {
+                          if (!_stock) {
+                            await _checkStock(context);
+                            Future.delayed(Duration(milliseconds: 200))
+                                .then((v) {
+                              Scrollable.ensureVisible(
+                                  expansionKey.currentContext,
+                                  alignmentPolicy:
+                                  ScrollPositionAlignmentPolicy
+                                      .keepVisibleAtEnd,
+                                  duration: Duration(milliseconds: 200));
+                            });
+                          }
+                          if (_stock) {}
+                          setState(() {
+                            if (_edit) _edit = false;
+                            _stock = !_stock;
+                          });
+                        }))
                     : ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: widget.leftPadding,
-                          maxWidth: widget.leftPadding,
-                        ),
-                      ),
+                  constraints: BoxConstraints(
+                    minWidth: widget.leftPadding,
+                    maxWidth: widget.leftPadding,
+                  ),
+                ),
                 IconButton(
                   padding: widget.iconPadding,
                   iconSize: widget.iconSize,
                   color: minusBtnDisabled
                       ? widget.iconDisabledColor ??
-                          Theme.of(context).disabledColor
+                      Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                          Theme.of(context).textTheme.labelLarge.color,
+                      Theme.of(context).textTheme.labelLarge.color,
                   icon: widget.subtractIcon,
                   onPressed: minusBtnDisabled
                       ? null
                       : () async {
-                          if (_edit) {
-                            setState(() {
-                              _edit = !_edit;
-                            });
-                          }
+                    if (_edit) {
+                      setState(() {
+                        _edit = !_edit;
+                      });
+                    }
 
-                          num newVal = _value - widget.step;
-                          setState(() {
-                            _value = newVal;
-                          });
-                          if (_stock) {
-                            await _checkStock(context);
-                            setState(() {
-                              _stock = !_stock;
-                              _stock = !_stock;
-                            });
-                          }
-                          if (widget.onChanged != null)
-                            widget.onChanged(newVal);
-                          _storage.writeBasket(basketChecked);
-                        },
+                    num  newVal = _value - widget.step;
+                    setState(() {
+                      _value = newVal;
+                    });
+                    if (_stock) {
+                      await _checkStock(context);
+                      setState(() {
+                        _stock = !_stock;
+                        _stock = !_stock;
+                      });
+                    }
+                    if (widget.onChanged != null)
+                      widget.onChanged(newVal);
+                    _storage.writeBasket(basketChecked);
+                  },
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(
@@ -4297,34 +4321,34 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                   iconSize: widget.iconSize,
                   color: addBtnDisabled
                       ? widget.iconDisabledColor ??
-                          Theme.of(context).disabledColor
+                      Theme.of(context).disabledColor
                       : widget.iconActiveColor ??
-                          Theme.of(context).textTheme.labelLarge.color,
+                      Theme.of(context).textTheme.labelLarge.color,
                   icon: widget.addIcon,
                   onPressed: addBtnDisabled
                       ? null
                       : () async {
-                          if (_edit) {
-                            setState(() {
-                              _edit = !_edit;
-                            });
-                          }
-                          num newVal = _value + widget.step;
-                          setState(() {
-                            _value = newVal;
-                          });
-                          if (_stock) {
-                            await _checkStock(context);
-                            setState(() {
-                              _stock = !_stock;
-                              _stock = !_stock;
-                            });
-                          }
+                    if (_edit) {
+                      setState(() {
+                        _edit = !_edit;
+                      });
+                    }
+                    num  newVal = _value + widget.step;
+                    setState(() {
+                      _value = newVal;
+                    });
+                    if (_stock) {
+                      await _checkStock(context);
+                      setState(() {
+                        _stock = !_stock;
+                        _stock = !_stock;
+                      });
+                    }
 
-                          if (widget.onChanged != null)
-                            widget.onChanged(newVal);
-                          _storage.writeBasket(basketChecked);
-                        },
+                    if (widget.onChanged != null)
+                      widget.onChanged(newVal);
+                    _storage.writeBasket(basketChecked);
+                  },
                 ),
                 IconButton(
                     icon: _edit
@@ -4333,7 +4357,7 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                     onPressed: () {
                       if (!_edit) {
                         _text = '';
-
+                        _kbController.text = '';
                         Future.delayed(Duration(milliseconds: 200)).then((v) {
                           Scrollable.ensureVisible(expansionKey.currentContext,
                               alignmentPolicy: ScrollPositionAlignmentPolicy
@@ -4352,120 +4376,103 @@ class _TouchSpinState2 extends State<TouchSpin2> {
                     })
               ]),
           _stock
-              ? Row(children: <Widget>[
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: widget.leftPadding + 16,
-                      maxWidth: widget.leftPadding + 16,
-                    ),
-                  ),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(children: <Widget>[
-                          _basketDetail.artoul.indexOf('|') == -1
-                              ? Text(AppLocalizations.of(context).orderunit +
-                                  ': ' +
-                                  _basketDetail.artorduni)
-                              : OrderUnitWidget(
-                                  _basketDetail, true, _artnumint),
-                        ]),
-                        SizedBox(height: 4.0, width: 0.0),
-                        _basketDetail.artstofla == 'x'
-                            ? Container()
-                            : Row(children: <Widget>[
-                                _basketDetail.artstofla == ''
-                                    ? _basketDetail.artsto == ''
-                                        ? Text('')
-                                        : Text(
-                                            AppLocalizations.of(context).stock +
-                                                ': ' +
-                                                _basketDetail.artsto)
-                                    : _basketDetail.artstofla == 'green'
-                                        ? Wrap(children: <Widget>[
-                                            Text(AppLocalizations.of(context)
-                                                    .stock +
-                                                ': '),
-                                            Icon(Icons.circle,
-                                                color: Colors.green,
-                                                size: (2 + approDataTextSize) *
-                                                    1.0)
-                                          ])
-                                        : _basketDetail.artstofla == 'yellow'
-                                            ? Wrap(children: <Widget>[
-                                                Text(
-                                                    AppLocalizations.of(context)
-                                                            .stock +
-                                                        ': '),
-                                                Icon(Icons.circle,
-                                                    color: Colors.orange,
-                                                    size: (2 +
-                                                            approDataTextSize) *
-                                                        1.0)
-                                              ])
-                                            : Wrap(children: <Widget>[
-                                                Text(
-                                                    AppLocalizations.of(context)
-                                                            .stock +
-                                                        ': '),
-                                                Icon(Icons.circle,
-                                                    color: Colors.red,
-                                                    size: (2 +
-                                                            approDataTextSize) *
-                                                        1.0)
-                                              ])
-                              ]),
-                      ]),
-                ])
+              ? Row(children: <Widget >[
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: widget.leftPadding + 16,
+                maxWidth: widget.leftPadding + 16,
+              ),
+            ),
+            Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget >[
+                  Row(children: <Widget >[
+                    _basketDetail.artoul.indexOf('|') == -1
+                        ? Text(AppLocalizations.of(context).orderunit +
+                        ': ' +
+                        _basketDetail.artorduni)
+                        : OrderUnitWidget(
+                        _basketDetail, true, _artnumint),
+                  ]),
+                  SizedBox(height: 4.0, width: 0.0),
+                  _basketDetail.artstofla == 'x'
+                      ? Container()
+                      : Row(children: <Widget >[
+                    _basketDetail.artstofla == ''
+                        ? _basketDetail.artsto == ''
+                        ? Text('')
+                        : Text(
+                        AppLocalizations.of(context).stock +
+                            ': ' +
+                            _basketDetail.artsto)
+                        : _basketDetail.artstofla == 'green'
+                        ? Wrap(children: <Widget >[
+                      Text(AppLocalizations.of(context)
+                          .stock +
+                          ': '),
+                      Icon(Icons.circle,
+                          color: Colors.green,
+                          size: (2 + approDataTextSize) *
+                              1.0)
+                    ])
+                        : _basketDetail.artstofla == 'yellow'
+                        ? Wrap(children: <Widget >[
+                      Text(
+                          AppLocalizations.of(context)
+                              .stock +
+                              ': '),
+                      Icon(Icons.circle,
+                          color: Colors.orange,
+                          size: (2 +
+                              approDataTextSize) *
+                              1.0)
+                    ])
+                        : Wrap(children: <Widget >[
+                      Text(
+                          AppLocalizations.of(context)
+                              .stock +
+                              ': '),
+                      Icon(Icons.circle,
+                          color: Colors.red,
+                          size: (2 +
+                              approDataTextSize) *
+                              1.0)
+                    ])
+                  ]),
+                ]),
+          ])
               : Container(),
           _edit
-              ? Row(children: <Widget>[
-                  _showStockIcon
-                      ? ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: widget.leftPadding + 16,
-                            maxWidth: widget.leftPadding + 16,
-                          ),
-                        )
-                      : ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: widget.leftPadding + 16,
-                            maxWidth: widget.leftPadding + 16,
-                          ),
-                        ),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: 140,
-                      maxWidth: 140,
-                    ),
-                    child: Container(
-                      color: Theme.of(context).primaryColorDark,
-                      child: VirtualKeyboard(
-                        height: 150,
-                        textColor: globals.menuActiveColor,
-                        type: VirtualKeyboardType.Numeric,
-                        onKeyPress: (key) {
-                          switch (key.action) {
-                            case VirtualKeyboardKeyAction.Backspace:
-                              if (_text.length == 0) return;
-                              _text = _text.substring(0, _text.length - 1);
-                              break;
-                            default:
-                              _text = _text + key.text;
-                          }
-                          setState(() {
-                            _text.length == 0
-                                ? _value = 1
-                                : _value = num.parse(_text);
-                          });
-                          if (widget.onChanged != null)
-                            widget.onChanged(_value);
-                          _storage.writeBasket(basketChecked);
-                        },
-                      ),
-                    ),
-                  ),
-                ])
+              ? Row(children: <Widget >[
+            _showStockIcon
+                ? ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: widget.leftPadding + 16,
+                maxWidth: widget.leftPadding + 16,
+              ),
+            )
+                : ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: widget.leftPadding + 16,
+                maxWidth: widget.leftPadding + 16,
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: 140,
+                maxWidth: 140,
+              ),
+              child: Container(
+                color: Theme.of(context).primaryColorDark,
+                child: VirtualKeyboard(
+                  textController: _kbController,
+                  height: 150,
+                  textColor: globals.menuActiveColor,
+                  type: VirtualKeyboardType.Numeric,
+                ),
+              ),
+            ),
+          ])
               : Container(),
         ]);
   }
