@@ -19,7 +19,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:package_info/package_info.dart';
 
 //generate splashscreen >>>  flutter pub pub run flutter_native_splash:create
-//generate icon >>> flutter pub run flutter_launcher_icons:main
+//generate icon >>> bui
 // flutter run --debug
 // flutter config --no-enable-web
 // open /Applications/Android\ Studio.app sur macincloud
