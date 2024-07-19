@@ -22,9 +22,11 @@ import 'dynaform.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:native_pdf_view/native_pdf_view.dart';
+//import 'package:native_pdf_view/native_pdf_view.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:printing/printing.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+//import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_icons_null_safety/flutter_icons_null_safety.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 GlobalKey<_TreeScreen> approTreeScreen = GlobalKey<_TreeScreen>();
@@ -62,10 +64,9 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
 
   Widget _shoppingCartBadge() {
     return badges.Badge(
-      badgeColor: globals.badgeColor,
       position: badges.BadgePosition.topEnd(top: -7, end: -12),
-      animationDuration: Duration(milliseconds: 300),
-      animationType: badges.BadgeAnimationType.slide,
+//      animationDuration: Duration(milliseconds: 300),
+//      animationType: badges.BadgeAnimationType.slide,
       showBadge: true,
       badgeContent: ValueListenableBuilder(
         valueListenable: globals.basketCounter,
@@ -79,10 +80,9 @@ class _MainTabState extends State<MainTabState> with WidgetsBindingObserver {
 
   Widget _catalogBadge() {
     return badges.Badge(
-      badgeColor: globals.badgeColor,
       position: badges.BadgePosition.topEnd(top: -7, end: -12),
-      animationDuration: Duration(milliseconds: 300),
-      animationType: badges.BadgeAnimationType.slide,
+      //animationDuration: Duration(milliseconds: 300),
+      //animationType: badges.BadgeAnimationType.slide,
       showBadge: true,
       badgeContent: ValueListenableBuilder(
         valueListenable: globals.infoCounter,
@@ -1616,13 +1616,9 @@ class _TreeScreen extends State<TreeScreen> {
                                     },
                                   )
                                 : badges.Badge(
-                                    badgeColor: globals.badgeColor,
+                                    //badgeColor: globals.badgeColor,
                                     position: badges.BadgePosition.topEnd(
                                         top: -2, end: -3),
-                                    animationDuration:
-                                        Duration(milliseconds: 300),
-                                    animationType:
-                                        badges.BadgeAnimationType.slide,
                                     badgeContent: ValueListenableBuilder(
                                       valueListenable: globals.infoCounter,
                                       builder: (BuildContext context, int value,
