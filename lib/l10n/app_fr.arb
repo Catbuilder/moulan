@@ -67,5 +67,6 @@
   "unregisternow": "Supprimer mon compte",
   "messageunregisternow": "Raisons (optionnel)",
   "cgv": "Conditions générales de vente",
-  "deliveryplanning": "Planning de livraisons"
+  "deliveryplanning": "Planning de livraisons",
+  "forgottenpw": "Mot de passe oublié"
 }

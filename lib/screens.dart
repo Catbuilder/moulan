@@ -355,6 +355,28 @@ class _NewsScreen extends State<NewsScreen> {
     storage.writeInfoNews(infoNews);
   }
 
+  _launchURL(url) async {
+    if (await canLaunchUrl(url)) {
+      await launchUrl(
+        url,
+        webViewConfiguration: WebViewConfiguration(
+          enableJavaScript: true,
+        ),
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _showPDF(context, u, n) async {
+    List<String> myUrl = [''];
+    myUrl[0] = u;
+    var route = MaterialPageRoute(
+      builder: (BuildContext context) => PdfScreen(myUrl, n),
+    );
+    Navigator.of(context).push(route);
+  }
+
   @override
   Widget build(BuildContext context) {
     var futureBuilder = FutureBuilder(
@@ -534,6 +556,13 @@ class _NewsScreen extends State<NewsScreen> {
                                         ),
                                       );
                                       Navigator.of(context).push(route);
+                                      break;
+                                    case 'external':
+                                      _launchURL(Uri.parse(infoNews[index].inflin));
+                                      break;
+                                    case 'internal':
+                                      _showPDF(context, infoNews[index].inflin,
+                                          getText(infoNews[index].inftit));
                                       break;
                                   }
                                 },

@@ -67,5 +67,6 @@
   "unregisternow": "mein Konto löschen",
   "messageunregisternow": "Gründe (optional)",
   "cgv": "Allgemeine Geschäftsbedingungen",
-  "deliveryplanning": "Lieferplanung"
+  "deliveryplanning": "Lieferplanung",
+  "forgottenpw": "Passwort vergessen"
 }

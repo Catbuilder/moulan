@@ -15,7 +15,12 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.5+12
+
+#symboles de debugage
+#build\app\intermediates\merged_native_libs\release\out\lib inside your Flutter project
+#and compress the folders into symbols.zip, now upload it into the google play console
+
+version: 1.0.7+14
 
 environment:
   sdk: ">=2.12.0 <3.0.0"

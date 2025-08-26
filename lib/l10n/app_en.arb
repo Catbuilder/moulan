@@ -67,6 +67,6 @@
   "unregisternow": "Delete my account","@unregister": {"description": "Unregister now"},
   "messageunregisternow": "Reason (optional)","@unregisterreason": {"description": "Unregister reason"},
   "cgv": "Terms of Sales", "@cgv": {"cgv": "cgv"},
-  "deliveryplanning": "Delivery planning", "@deliveryplanning": {"deliveryplanning": "Delivery planning"}
-
+  "deliveryplanning": "Delivery planning", "@deliveryplanning": {"deliveryplanning": "Delivery planning"},
+  "forgottenpw": "Forgotten password","@forgottenpw": {"description": "Forgotten password"}
 }

@@ -1,0 +1,25 @@
+# Please add these rules to your existing keep rules in order to suppress warnings.
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
+-dontwarn com.google.errorprone.annotations.CheckReturnValue
+-dontwarn com.google.errorprone.annotations.Immutable
+-dontwarn com.google.errorprone.annotations.RestrictedApi
+-dontwarn com.huawei.android.os.BuildEx$VERSION
+-dontwarn com.huawei.android.telephony.ServiceStateEx
+-dontwarn com.huawei.hms.framework.network.restclient.hianalytics.RCEventListener
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.Interceptor$Chain
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.RealInterceptorChain
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.Request$Builder
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.Request
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.Response
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.plugin.BasePlugin
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.plugin.PluginInterceptor
+-dontwarn com.huawei.hms.framework.network.restclient.hwhttp.url.HttpUrl
+-dontwarn com.huawei.libcore.io.ExternalStorageFile
+-dontwarn com.huawei.libcore.io.ExternalStorageFileInputStream
+-dontwarn com.huawei.libcore.io.ExternalStorageFileOutputStream
+-dontwarn com.huawei.libcore.io.ExternalStorageRandomAccessFile
+-dontwarn com.huawei.secure.android.common.util.SafeBase64
+-dontwarn com.huawei.secure.android.common.util.SafeString
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.concurrent.GuardedBy

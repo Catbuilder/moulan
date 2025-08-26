@@ -17,6 +17,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 //generate splashscreen >>>  flutter pub pub run flutter_native_splash:create
 //generate icon >>> bui
@@ -73,15 +75,18 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
-  final pswController = ObscuringTextEditingController();
+//  final pswController = ObscuringTextEditingController();
+  final pswController = TextEditingController();
   final msgController = TextEditingController();
   var _themeProvider;
   String _token;
+  bool _passwordVisible = false;
 
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   @override
   void initState() {
     super.initState();
+    _passwordVisible = false;
     getPref();
   }
 
@@ -204,6 +209,19 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
+  _launchURLResetPw() async {
+    var url = 'https://moulan.catbuilder.info/catalogs/cat.asp?divmode=resetpw';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(
+        Uri.parse(url),
+        webViewConfiguration: WebViewConfiguration(
+          enableJavaScript: true,
+        ),
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     _themeProvider = Provider.of<ThemeChanger>(context);
@@ -230,7 +248,7 @@ class _MainMenuState extends State<MainMenu> {
                   ),
                   controller: emailController,
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  clearButtonMode: OverlayVisibilityMode.editing,
+                  clearButtonMode: OverlayVisibilityMode.never,
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
                   decoration: BoxDecoration(
@@ -253,10 +271,21 @@ class _MainMenuState extends State<MainMenu> {
                     color: CupertinoColors.secondaryLabel,
                     size: 24,
                   ),
+                  suffix: IconButton( icon: _passwordVisible ? Icon(
+                    CupertinoIcons.eye,
+                    color: CupertinoColors.secondaryLabel,
+                    size: 24,
+                  ) :  Icon(
+                    CupertinoIcons.eye_slash,
+                    color: CupertinoColors.secondaryLabel,
+                    size: 24,
+                  ), onPressed:() {    setState(() {
+                    _passwordVisible = !_passwordVisible;
+                  });},)  ,
                   controller: pswController,
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  obscureText: false,
-                  clearButtonMode: OverlayVisibilityMode.editing,
+                  obscureText: !_passwordVisible ,
+                  clearButtonMode: OverlayVisibilityMode.never,
                   keyboardType: TextInputType.visiblePassword,
                   autocorrect: false,
                   decoration: BoxDecoration(
@@ -282,6 +311,22 @@ class _MainMenuState extends State<MainMenu> {
                 ),
               ),
               SizedBox(height: 10.0),
+              Center(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                          text: AppLocalizations.of(context).forgottenpw,
+                          style: TextStyle(color: globals.artnumintColor),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _launchURLResetPw()),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+
               Center(
                 child: TextField(
                   maxLines: 2,
